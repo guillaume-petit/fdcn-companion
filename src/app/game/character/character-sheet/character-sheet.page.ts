@@ -11,7 +11,6 @@ import {DiceHelper} from '../../helpers/dice.helper';
 import {FightService} from '../../fight/fight.service';
 import {AnimationHelper} from '../../helpers/animation.helper';
 import {InventoryItem, ITEMS} from "../../inventory/inventory-item.model";
-import {EquipmentItem} from "../../equipment/equipment-item.model";
 
 @Component({
   selector: 'app-character-sheet',
@@ -179,8 +178,7 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
   }
 
   onAddItem(item: InventoryItem) {
-    this.billy.items.push(item.ref);
-    this.modalCtrl.dismiss();
+    this.billy.items.push(item);
   }
 
   onDeleteItem(i: number) {
@@ -203,6 +201,6 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
   }
 
   get availableItems() {
-    return ITEMS.filter(i => !this.billy.items.includes(i.ref));
+    return ITEMS.filter(item => !this.billy.items.find(i => item.paragraph === i.paragraph));
   }
 }

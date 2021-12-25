@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Enemy} from './enemy.model';
 import {Character} from '../character/character.model';
 import {ITEM} from '../inventory/inventory-item.model';
+import {BehaviorSubject, combineLatest, pipe} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -14,19 +15,45 @@ export class FightService {
   currentSituation: FightSituation;
   brinkOfDeath = 0;
   turnLimit = -1;
+  abilityOffset = new BehaviorSubject<number>(0);
 
   constructor() { }
 
   startFight(billy: Character, enemy: Enemy) {
     this.billy = billy;
     this.enemy = enemy;
+
+    combineLatest([this.billy.ability, this.enemy.ability, this.enemy.bonusPB]).subscribe(([billyAbility, enemyAbiliy, bonusPB]) => {
+      this.abilityOffset.next(billyAbility.combatValue + bonusPB - enemyAbiliy);
+    });
+
+    this.abilityOffset.subscribe(abilityOffset => {
+      if (abilityOffset < -7) {
+        this.currentSituation = {
+          name: 'Dominé',
+          fleeCost: -1,
+          abilityOffset: abilityOffset,
+          damages: []
+        };
+      } else if (abilityOffset > 7) {
+        this.currentSituation = {
+          name: 'Dominant',
+          fleeCost: -1,
+          abilityOffset: abilityOffset,
+          damages: []
+        };
+      } else {
+        this.currentSituation = SITUATION_TABLE.find(s => s.abilityOffset === abilityOffset);
+      }
+    });
+
     const steps = [];
     if (enemy.statModifier) {
       const modifiers = enemy.statModifier.call(this, this.billy);
       for (const modifier of modifiers) {
         const stat = this.billy.getStat(modifier.statId);
         stat.modifier = modifier.value;
-        steps.push(`Vous obtenez ${modifier.value} de ${stat.name} durant ce combat.`);
+        steps.push(`Vous obtenez ${modifier.value} de ${stat.id} durant ce combat.`);
       }
     }
     if (enemy.turnLimit) {
@@ -35,12 +62,13 @@ export class FightService {
     if (this.turnLimit !== -1) {
       steps.push(`Nombre de tours restants: ${this.turnLimit}`);
     }
+    let continueFighting = this.checkCurrentSituation(steps);
     this.fightTurns.push({
       billyHp: this.billy.currentHp,
       enemyHp: this.enemy.hp,
       steps
     });
-    this.updateSituation(steps);
+    return continueFighting;
   }
 
   endFight() {
@@ -78,7 +106,7 @@ export class FightService {
     }
     if (this.enemy.hp === 0) {
       steps.push(`Vous avez vaincu votre adversaire !`);
-      if (this.billy.items.includes(ITEM.petitMedaillon)) {
+      if (this.billy.items.find(value => value.ref === ITEM.petitMedaillon)) {
         this.billy.heal(2);
         steps.push(`Votre ${ITEM.petitMedaillon} vous restaure 2 POINTS DE VIE`);
       }
@@ -113,11 +141,8 @@ export class FightService {
       }
     }
     if (this.enemy.onEndTurn) {
-      this.enemy.onEndTurn(this.billy, this.enemy);
-      this.updateSituation(steps);
-      if (!this.currentSituation) {
-        continueFighting = false;
-      }
+      steps.push(...this.enemy.onEndTurn(this.billy, this.enemy));
+      continueFighting = continueFighting && this.checkCurrentSituation(steps);
     }
     this.fightTurns.push({
       billyHp: this.billy.currentHp,
@@ -171,19 +196,17 @@ export class FightService {
     return success;
   }
 
-  private updateSituation(steps: any[]) {
-    const abilityOffset = this.billy.ability.getValue().combatValue + this.enemy.bonusPB - this.enemy.ability;
-    if (abilityOffset < -7) {
+  private checkCurrentSituation(steps: string[]) {
+    if (this.currentSituation.abilityOffset < -7) {
       steps.push('Votre adversaire vous domine totalement. Vous perdez automatiquement le combat.');
-      this.currentSituation = null;
-    } else if (abilityOffset > 7) {
-      steps.push('Vous dominez totalement votre adversaire. Vous remportez automatiquement le combat.');
-      this.currentSituation = null;
-    } else {
-      this.currentSituation = SITUATION_TABLE.find(s => s.abilityOffset === abilityOffset);
+      return false;
     }
+    if (this.currentSituation.abilityOffset > 7) {
+      steps.push('Vous dominez totalement votre adversaire. Vous remportez automatiquement le combat.');
+      return false;
+    }
+    return true;
   }
-
 }
 
 interface FightStatus {

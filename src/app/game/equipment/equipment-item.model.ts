@@ -1,8 +1,10 @@
+import {StatModifier} from "../character/stat-modifier.model";
+
 export interface EquipmentItem {
   id: EquipmentItemId;
   category: 'weapon' | 'support' | 'tool';
   name: string;
-  characteristic: string;
+  statModifier?: StatModifier[];
 }
 
 export enum EquipmentItemId {
@@ -10,6 +12,7 @@ export enum EquipmentItemId {
   lance,
   morgenstern,
   arc,
+  petiteMassue,
   cotteDeMaille,
   marmite,
   pamphletTouristique,

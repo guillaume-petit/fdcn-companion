@@ -2,6 +2,7 @@ import {EquipmentItem, EquipmentItemId} from '../equipment/equipment-item.model'
 import {BehaviorSubject} from 'rxjs';
 import {CharacterStat, CharacterStatId} from './character-stat.model';
 import {CharacterModel} from "../../storage.service";
+import {InventoryItem} from "../inventory/inventory-item.model";
 
 export class Character {
   name: string;
@@ -11,42 +12,35 @@ export class Character {
   ability: BehaviorSubject<CharacterStat> = new BehaviorSubject<CharacterStat>(
     new CharacterStat({
       id: CharacterStatId.ability,
-      name: 'Habileté',
       base: 2
     }));
   dexterity: BehaviorSubject<CharacterStat> = new BehaviorSubject<CharacterStat>(
     new CharacterStat({
       id: CharacterStatId.dexterity,
-      name: 'Adresse',
-      base: 3
+      base: 1
     }));
   toughness: BehaviorSubject<CharacterStat> = new BehaviorSubject<CharacterStat>(
     new CharacterStat({
       id: CharacterStatId.toughness,
-      name: 'Endurance',
       base: 2
     }));
   luck: BehaviorSubject<CharacterStat> = new BehaviorSubject<CharacterStat>(
     new CharacterStat({
       id: CharacterStatId.luck,
-      name: 'Chance',
       base: 3
     }));
   glory = 0;
   wealth = 0;
   damage = new CharacterStat({
     id: CharacterStatId.damage,
-    name: 'Dégats',
     base: 0
   });
   armor = new CharacterStat({
     id: CharacterStatId.armor,
-    name: 'Armure',
     base: 0
   });
   critical = new CharacterStat({
     id: CharacterStatId.critical,
-    name: 'Critique',
     base: 0
   });
 
@@ -55,7 +49,7 @@ export class Character {
   currentHp = 0;
   currentLuck = 0;
 
-  items: Array<string> = [];
+  items: Array<InventoryItem> = [];
 
   constructor(name: string) {
     this.name = name;
@@ -114,70 +108,51 @@ export class Character {
       const toughness = this.toughness.getValue();
       const luck = this.luck.getValue();
 
-      ability.equipment = 0;
-      dexterity.equipment = 0;
-      toughness.equipment = 0;
-      luck.equipment = 0;
-      this.damage.equipment = 0;
-      this.armor.equipment = 0;
-      this.critical.equipment = 0;
+      const equipmentStats: {
+        id: CharacterStatId,
+        value: number;
+      }[] = [{
+        id: CharacterStatId.ability,
+        value: 0
+      }, {
+        id: CharacterStatId.dexterity,
+        value: 0
+      }, {
+        id: CharacterStatId.luck,
+        value: 0
+      }, {
+        id: CharacterStatId.toughness,
+        value: 0
+      }, {
+        id: CharacterStatId.armor,
+        value: 0
+      }, {
+        id: CharacterStatId.critical,
+        value: 0
+      }, {
+        id: CharacterStatId.damage,
+        value: 0
+      }];
 
       for (const item of equipment) {
-        if (!!item) {
-          switch (item.id) {
-            case EquipmentItemId.epee:
-              ability.equipment += 4;
-              break;
-            case EquipmentItemId.lance:
-              ability.equipment += 3;
-              dexterity.equipment += 1;
-              break;
-            case EquipmentItemId.morgenstern:
-              ability.equipment += 1;
-              toughness.equipment += 1;
-              this.damage.equipment += 1;
-              break;
-            case EquipmentItemId.arc:
-              ability.equipment += 3;
-              dexterity.equipment += 1;
-              this.critical.equipment += 4;
-              break;
-            case EquipmentItemId.cotteDeMaille:
-              ability.equipment += -1;
-              dexterity.equipment += -1;
-              toughness.equipment += 1;
-              this.armor.equipment += 2;
-              break;
-            case EquipmentItemId.marmite:
-              toughness.equipment += 2;
-              this.armor.equipment += 1;
-              break;
-            case EquipmentItemId.pamphletTouristique:
-              luck.equipment += 4;
-              break;
-            case EquipmentItemId.kitDeSoin:
-              luck.equipment += 1;
-              break;
-            case EquipmentItemId.fourche:
-              ability.equipment += 1;
-              toughness.equipment += 3;
-              break;
-            case EquipmentItemId.dague:
-              if (!equipment.find(e => e.id === EquipmentItemId.arc)) {
-                ability.equipment += 1;
-              }
-              this.critical.equipment += 6;
-              break;
-            case EquipmentItemId.kitDEscalade:
-              dexterity.equipment += 1;
-              break;
-            case EquipmentItemId.sacDeGrain:
-              toughness.equipment += 4;
-              luck.equipment += 4;
-              break;
+        if (!!item && !!item.statModifier) {
+          for (let modifier of item.statModifier) {
+            equipmentStats.find(stat => stat.id === modifier.statId).value += modifier.value;
           }
         }
       }
+
+      if (this.equipment.getValue().filter(equipment => !!equipment && (equipment.id === EquipmentItemId.arc || equipment.id === EquipmentItemId.dague)).length === 2) {
+        equipmentStats.find(stat => stat.id === CharacterStatId.ability).value--;
+      }
+
+      ability.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.ability).value;
+      dexterity.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.dexterity).value;
+      toughness.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.toughness).value;
+      luck.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.luck).value;
+      this.damage.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.damage).value;
+      this.armor.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.armor).value;
+      this.critical.equipment = equipmentStats.find(stat => stat.id === CharacterStatId.critical).value;
       this.ability.next(ability);
       this.dexterity.next(dexterity);
       this.toughness.next(toughness);

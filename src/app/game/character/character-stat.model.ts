@@ -1,6 +1,5 @@
 export class CharacterStat {
   id: CharacterStatId;
-  name: string;
   base = 0;
   trait = 0;
   equipment = 0;
@@ -8,7 +7,6 @@ export class CharacterStat {
 
   constructor(obj: any) {
     this.id = obj.id;
-    this.name = obj.name;
     this.base = obj.base;
     this.trait = obj.trait || 0;
     this.equipment = obj.equipment || 0;
@@ -56,11 +54,11 @@ export class CharacterStat {
 }
 
 export enum CharacterStatId {
-  ability,
-  dexterity,
-  toughness,
-  luck,
-  damage,
-  armor,
-  critical
+  ability = 'Habileté',
+  dexterity = 'Adresse',
+  toughness = 'Endurance',
+  luck = 'Chance',
+  damage = 'Dégâts',
+  armor = 'Armure',
+  critical = 'Critique'
 }

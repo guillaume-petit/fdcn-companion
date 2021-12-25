@@ -3,6 +3,7 @@ import {Storage} from "@ionic/storage-angular";
 import {Subject} from "rxjs";
 import {EquipmentItem} from "./game/equipment/equipment-item.model";
 import {CharacterStat} from "./game/character/character-stat.model";
+import {InventoryItem} from "./game/inventory/inventory-item.model";
 
 @Injectable({
   providedIn: 'root'
@@ -54,5 +55,5 @@ export interface CharacterModel {
   currentHp: number;
   currentLuck: number;
 
-  items: Array<string>;
+  items: Array<InventoryItem>;
 }

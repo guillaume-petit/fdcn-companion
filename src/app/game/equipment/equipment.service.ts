@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {EquipmentItem, EquipmentItemId} from "./equipment-item.model";
+import {CharacterStatId} from "../character/character-stat.model";
 
 @Injectable({
   providedIn: 'root'
@@ -10,75 +11,156 @@ export class EquipmentService {
     {
       id: EquipmentItemId.epee,
       category: 'weapon',
-      name: 'L\'épée',
-      characteristic: '+4HAB',
+      name: 'Épée',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 4
+      }]
     },
     {
       id: EquipmentItemId.lance,
       category: 'weapon',
-      name: 'La lance',
-      characteristic: '+3HAB +1ADR',
+      name: 'Lance',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 3
+      }, {
+        statId: CharacterStatId.dexterity,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.morgenstern,
       category: 'weapon',
-      name: 'La morgenstern',
-      characteristic: '+1HAB +1END +1DEG',
+      name: 'Morgenstern',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 1
+      }, {
+        statId: CharacterStatId.toughness,
+        value: 1
+      }, {
+        statId: CharacterStatId.damage,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.arc,
       category: 'weapon',
-      name: 'L\'arc',
-      characteristic: '+3HAB +1ADR +4CRIT',
+      name: 'Arc',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 3
+      }, {
+        statId: CharacterStatId.dexterity,
+        value: 1
+      }, {
+        statId: CharacterStatId.critical,
+        value: 4
+      }]
+    },
+    {
+      id: EquipmentItemId.petiteMassue,
+      category: 'weapon',
+      name: 'Petite Massue',
+      statModifier: [{
+        statId: CharacterStatId.damage,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.cotteDeMaille,
       category: 'support',
-      name: 'La cotte de maille',
-      characteristic: '-1HAB -1ADR +1END +2ARM',
+      name: 'Cotte de maille',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: -1
+      }, {
+        statId: CharacterStatId.dexterity,
+        value: -1
+      }, {
+        statId: CharacterStatId.toughness,
+        value: 1
+      }, {
+        statId: CharacterStatId.armor,
+        value: 2
+      }]
     },
     {
       id: EquipmentItemId.marmite,
       category: 'support',
-      name: 'La marmite',
-      characteristic: '+2END +1ARM',
+      name: 'Marmite',
+      statModifier: [{
+        statId: CharacterStatId.toughness,
+        value: 2
+      }, {
+        statId: CharacterStatId.armor,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.pamphletTouristique,
       category: 'support',
-      name: 'Le pamphlet touristique',
-      characteristic: '+4CHA',
+      name: 'Pamphlet touristique',
+      statModifier: [{
+        statId: CharacterStatId.luck,
+        value: 4
+      }]
     },
     {
       id: EquipmentItemId.kitDeSoin,
       category: 'support',
-      name: 'Le kit de soin',
-      characteristic: '+1CHA SOIN X2',
+      name: 'Kit de soin',
+      statModifier: [{
+        statId: CharacterStatId.luck,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.fourche,
       category: 'tool',
-      name: 'La fourche',
-      characteristic: '+1HAB +3END',
+      name: 'Fourche',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 1
+      }, {
+        statId: CharacterStatId.toughness,
+        value: 3
+      }]
     },
     {
       id: EquipmentItemId.dague,
       category: 'tool',
-      name: 'La dague',
-      characteristic: '+1HAB +6CRIT',
+      name: 'Dague',
+      statModifier: [{
+        statId: CharacterStatId.ability,
+        value: 1
+      }, {
+        statId: CharacterStatId.critical,
+        value: 6
+      }]
     },
     {
       id: EquipmentItemId.kitDEscalade,
       category: 'tool',
-      name: 'Le kit d\'escalade',
-      characteristic: '+1ADR',
+      name: 'Kit d\'escalade',
+      statModifier: [{
+        statId: CharacterStatId.dexterity,
+        value: 1
+      }]
     },
     {
       id: EquipmentItemId.sacDeGrain,
       category: 'tool',
-      name: 'Le sac de grain',
-      characteristic: '+2END +2CHA',
-    },
+      name: 'Sac de grain',
+      statModifier: [{
+        statId: CharacterStatId.toughness,
+        value: 2
+      }, {
+        statId: CharacterStatId.luck,
+        value: 2
+      }]
+    }
   ];
 
   constructor() { }

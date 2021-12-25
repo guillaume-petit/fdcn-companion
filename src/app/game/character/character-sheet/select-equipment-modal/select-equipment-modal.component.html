@@ -13,7 +13,11 @@
           </ion-card-header>
           <ion-card-content>
             <p *ngIf="!items[0]">Cliquez pour choisir un objet.</p>
-            <p *ngIf="items[0]">{{ items[0].characteristic }}</p>
+            <ng-container *ngIf="items[0]">
+              <div *ngFor="let stat of items[0].statModifier">
+                <ion-label>{{ stat.statId }}: {{ stat.value }}</ion-label>
+              </div>
+            </ng-container>
           </ion-card-content>
         </ion-card>
         <ion-card (click)="onSelectItem2()">
@@ -22,7 +26,11 @@
           </ion-card-header>
           <ion-card-content>
             <p *ngIf="!items[1]">Cliquez pour choisir un objet.</p>
-            <p *ngIf="items[1]">{{ items[1].characteristic }}</p>
+            <ng-container *ngIf="items[1]">
+              <div *ngFor="let stat of items[1].statModifier">
+                <ion-label>{{ stat.statId }}: {{ stat.value }}</ion-label>
+              </div>
+            </ng-container>
           </ion-card-content>
         </ion-card>
         <ion-card (click)="onSelectItem3()">
@@ -31,7 +39,11 @@
           </ion-card-header>
           <ion-card-content>
             <p *ngIf="!items[2]">Cliquez pour choisir un objet.</p>
-            <p *ngIf="items[2]">{{ items[2].characteristic }}</p>
+            <ng-container *ngIf="items[2]">
+              <div *ngFor="let stat of items[2].statModifier">
+                <ion-label>{{ stat.statId }}: {{ stat.value }}</ion-label>
+              </div>
+            </ng-container>
           </ion-card-content>
         </ion-card>
         <ion-button [disabled]="!equipmentComplete()" (click)="onValidate()">Valider</ion-button>

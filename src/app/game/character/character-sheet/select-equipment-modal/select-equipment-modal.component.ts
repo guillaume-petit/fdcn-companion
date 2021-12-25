@@ -3,6 +3,7 @@ import {EquipmentService} from '../../../equipment/equipment.service';
 import {ModalController, PopoverController} from '@ionic/angular';
 import {SelectEquipmentItemComponent} from './select-equipment-item/select-equipment-item.component';
 import {EquipmentItem, EquipmentItemId} from '../../../equipment/equipment-item.model';
+import {StatModifier} from "../../stat-modifier.model";
 
 @Component({
   selector: 'app-select-equipment-modal',

@@ -1,4 +1,4 @@
-<ion-text>{{ editing ? stat.name.slice(0, 3) : stat.name }}</ion-text>
+<ion-text>{{ editing ? stat.id.slice(0, 3) : stat.id }}</ion-text>
 <ion-text color="secondary" [ngClass]="'ion-text-' + (editing ? 'center' : 'right')">{{ stat.total }}</ion-text>
 <ion-button
         *ngIf="editing"

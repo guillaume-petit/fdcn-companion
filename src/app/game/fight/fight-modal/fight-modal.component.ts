@@ -46,11 +46,12 @@ export class FightModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.fightService.startFight(this.billy, new Enemy({...ENEMIES.find(enemy => enemy.id === 76)}));
-    if (!this.fightService.currentSituation) {
+    if (!this.fightService.startFight(
+      this.billy,
+      new Enemy({...ENEMIES.find(enemy => enemy.id === 97)}))
+    ) {
       this.fightStatus = 'ended';
     }
-    console.log(this.billy);
   }
 
   attack() {
@@ -63,7 +64,7 @@ export class FightModalComponent implements OnInit {
     setTimeout(async () => {
       const attackPromise = this.diceHelper.roll(this.attackDice);
       let dodgePromise;
-      if (this.canDodge()) {
+      if (this.canDodge) {
         dodgePromise = this.diceHelper.roll(this.dodgeDice);
       }
       Promise.all([attackPromise, dodgePromise]).then(result => {
@@ -139,22 +140,27 @@ export class FightModalComponent implements OnInit {
     }
   }
 
-  canFlee() {
+  onFinishFight() {
+    this.fightService.endFight();
+    this.modalCtrl.dismiss(this.billy);
+  }
+
+  get canFlee() {
     return this.billy.trait.getValue() === 'Prudent' &&
       this.billy.currentLuck >= this.fightService.currentSituation?.fleeCost &&
       this.fightService.fightTurns.length === 1 &&
       this.fightStatus === 'preparing';
   }
 
-  canDodge() {
+  get canDodge() {
     return this.billy.dexterity.getValue().combatValue >= 2;
   }
 
-  canAttack() {
+  get canAttack() {
     return !['brink_of_death', 'trying_to_survive', 'ended'].includes(this.fightStatus);
   }
 
-  canDoubleDamage() {
+  get canDoubleDamage() {
     return this.billy.trait.getValue() === 'Prudent' &&
       this.billy.currentLuck > 0 &&
       this.fightService.fightTurns.length > 1 &&
@@ -162,14 +168,9 @@ export class FightModalComponent implements OnInit {
       this.doubleDamageSuccess === null;
   }
 
-  onFinishFight() {
-    this.fightService.endFight();
-    this.modalCtrl.dismiss(this.billy);
-  }
-
   get isDodgeDiceDisplayed() {
     return ['pending_attack', 'attacking', 'pending_reroll', 'brink_of_death', 'ended'].includes(this.fightStatus) &&
-      this.canDodge() &&
+      this.canDodge &&
       this.surviveSuccess === null &&
       this.doubleDamageSuccess === null &&
       this.fleeSuccess === null;

@@ -42,4 +42,16 @@ export const ITEMS: Array<InventoryItem> = [
     ref: ITEM.petitMedaillon,
     paragraph: 47,
   },
+  {
+    ref: ITEM.info,
+    paragraph: 47,
+  },
+  {
+    ref: ITEM.info,
+    paragraph: 58,
+  },
+  {
+    ref: ITEM.info,
+    paragraph: 62,
+  }
 ];
