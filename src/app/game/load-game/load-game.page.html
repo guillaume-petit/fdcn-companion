@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Continuer</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size-md="4" offset-md="4" size="8" offset="2">
+        <ion-list>
+          <ion-item
+                  *ngFor="let billy of loadedCharacters"
+                  [routerLink]="['/game/character-sheet', billy.name]"
+          >
+            <ion-label>{{ billy.name }} ({{ billy.trait | async }})</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

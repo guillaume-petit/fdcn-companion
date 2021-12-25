@@ -1,0 +1,57 @@
+<ion-list>
+  <ion-list-header>
+    <ion-label class="ion-text-uppercase" color="primary">Les armes</ion-label>
+  </ion-list-header>
+  <ion-item
+          *ngFor="let item of equipmentService.allWeapons"
+          (click)="onSelectItem(item)"
+  >
+    <div>
+      <ion-label [color]="!isItemAvailable(item) ? 'medium' : ''">
+        <div>{{ item.name }}</div>
+        <div style="font-size: 12px">{{ item.characteristic }}</div>
+      </ion-label>
+      <ion-label class="ion-text-right">
+        <ion-icon name="checkmark" slot="icon-only" *ngIf="isItemSelected(item)"></ion-icon>
+      </ion-label>
+    </div>
+  </ion-item>
+</ion-list>
+<ion-list>
+  <ion-list-header>
+    <ion-label class="ion-text-uppercase" color="primary">Les équipements</ion-label>
+  </ion-list-header>
+  <ion-item
+          *ngFor="let item of equipmentService.allSupports"
+          (click)="onSelectItem(item)"
+  >
+    <div>
+      <ion-label [color]="isItemSelected(item) ? 'medium' : ''">
+        <div>{{ item.name }}</div>
+        <div style="font-size: 12px">{{ item.characteristic }}</div>
+      </ion-label>
+      <ion-label class="ion-text-right">
+        <ion-icon name="checkmark" slot="icon-only" *ngIf="isItemSelected(item)"></ion-icon>
+      </ion-label>
+    </div>
+  </ion-item>
+</ion-list>
+<ion-list>
+  <ion-list-header>
+    <ion-label class="ion-text-uppercase" color="primary">Les outils</ion-label>
+  </ion-list-header>
+  <ion-item
+          *ngFor="let item of equipmentService.allTools"
+          (click)="onSelectItem(item)"
+  >
+    <div>
+      <ion-label [color]="isItemSelected(item) ? 'medium' : ''">
+        <div>{{ item.name }}</div>
+        <div style="font-size: 12px">{{ item.characteristic }}</div>
+      </ion-label>
+      <ion-label class="ion-text-right">
+        <ion-icon name="checkmark" slot="icon-only" *ngIf="isItemSelected(item)"></ion-icon>
+      </ion-label>
+    </div>
+  </ion-item>
+</ion-list>

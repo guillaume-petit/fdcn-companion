@@ -1,0 +1,41 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>Votre Matériel</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col class="ion-text-center">
+        <ion-card (click)="onSelectItem1()">
+          <ion-card-header>
+            <ion-card-title>{{ items[0] ? items[0].name : 'Emplacement vide' }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p *ngIf="!items[0]">Cliquez pour choisir un objet.</p>
+            <p *ngIf="items[0]">{{ items[0].characteristic }}</p>
+          </ion-card-content>
+        </ion-card>
+        <ion-card (click)="onSelectItem2()">
+          <ion-card-header>
+            <ion-card-title>{{ items[1] ? items[1].name : 'Emplacement vide' }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p *ngIf="!items[1]">Cliquez pour choisir un objet.</p>
+            <p *ngIf="items[1]">{{ items[1].characteristic }}</p>
+          </ion-card-content>
+        </ion-card>
+        <ion-card (click)="onSelectItem3()">
+          <ion-card-header>
+            <ion-card-title>{{ items[2] ? items[2].name : 'Emplacement vide' }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p *ngIf="!items[2]">Cliquez pour choisir un objet.</p>
+            <p *ngIf="items[2]">{{ items[2].characteristic }}</p>
+          </ion-card-content>
+        </ion-card>
+        <ion-button [disabled]="!equipmentComplete()" (click)="onValidate()">Valider</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

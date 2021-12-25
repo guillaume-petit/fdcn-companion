@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>La Forteresse du Chaudron Noir</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row>
+      <ion-col size-md="4" offset-md="4" size="8" offset="2">
+        <ion-list>
+          <ion-item (click)="newGame()">
+            <ion-label class="ion-text-center">Nouvelle aventure</ion-label>
+          </ion-item>
+          <ion-item routerLink="/game/load-game">
+            <ion-label class="ion-text-center">Continuer</ion-label>
+          </ion-item>
+          <ion-item routerLink="/game/settings">
+            <ion-label class="ion-text-center">Paramètres</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

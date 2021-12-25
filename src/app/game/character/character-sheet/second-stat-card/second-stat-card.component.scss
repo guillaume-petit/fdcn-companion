@@ -1,0 +1,10 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  align-items: center;
+  gap: 4px;
+
+  ion-button {
+    font-size: 12px;
+  }
+}

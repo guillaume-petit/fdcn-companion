@@ -1,0 +1,135 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>Feuille de combat</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-grid>
+    <ion-row class="header-row">
+      <ion-col class="ion-text-center">
+        <ion-label class="ion-text-uppercase">{{ fightService.enemy?.name }}</ion-label>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="4"><ion-label>PV</ion-label></ion-col>
+      <ion-col size="4" class="ion-text-center"><ion-label>Billy</ion-label></ion-col>
+      <ion-col size="4" class="ion-text-center"><ion-label>Adv.</ion-label></ion-col>
+    </ion-row>
+    <ion-row *ngFor="let turn of fightService.fightTurns; index as i">
+      <ion-col size="4"><ion-label>Tour {{ i + 1 }}</ion-label></ion-col>
+      <ion-col size="4" class="ion-text-center"><ion-label>{{ turn.billyHp }}</ion-label></ion-col>
+      <ion-col size="4" class="ion-text-center"><ion-label>{{ turn.enemyHp }}</ion-label></ion-col>
+    </ion-row>
+    <ion-row class="action-row">
+      <ion-col class="ion-text-center action-col" *ngIf="canFlee()">
+        <ion-button style="width: 114px" (click)="flee()">Fuir</ion-button>
+        <ion-label>Coût en chance: {{ fightService.currentSituation.fleeCost }}</ion-label>
+        <ion-label>Niveau de chance actuel: {{ billy.currentLuck }} / {{ billy.maxLuck }}</ion-label>
+      </ion-col>
+      <ion-col class="ion-text-center action-col" *ngIf="fightStatus === 'brink_of_death'">
+        <ion-button (click)="survive()">Survivre</ion-button>
+        <ion-label>Coût en chance: {{ fightService.brinkOfDeath + 1 }}</ion-label>
+        <ion-label>Niveau de chance actuel: {{ billy.currentLuck }} / {{ billy.maxLuck }}</ion-label>
+      </ion-col>
+      <ion-col class="ion-text-center action-col" *ngIf="canDoubleDamage()">
+        <ion-button (click)="doubleDamage()">Doubler</ion-button>
+        <ion-label>Doubler les dégâts</ion-label>
+        <ion-label>Niveau de chance actuel: {{ billy.currentLuck }} / {{ billy.maxLuck }}</ion-label>
+      </ion-col>
+      <ion-col class="ion-text-center action-col" *ngIf="canAttack()">
+        <ion-button (click)="attack()" [disabled]="fightStatus === 'attacking'">Attaquer</ion-button>
+        <ion-label>{{ fightService.currentSituation.name }} ({{ fightService.currentSituation.abilityOffset }})</ion-label>
+      </ion-col>
+      <ion-col class="ion-text-center action-col" *ngIf="fightStatus === 'brink_of_death'">
+        <ion-button (click)="onFinishFight()">Abandonner</ion-button>
+      </ion-col>
+      <ion-col class="ion-text-center action-col" *ngIf="fightStatus === 'ended'">
+        <ion-button (click)="onFinishFight()">Terminer</ion-button>
+      </ion-col>
+    </ion-row>
+    <ion-row class="dice-row">
+      <ion-col>
+        <div class="dice-roll" [ngClass]="fightStatus === 'fleeing' || fleeSuccess ? '' : 'ion-hide'">
+          <ion-label
+                  color="primary"
+                  class="ion-text-center ion-text-uppercase"
+          >Jet de fuite</ion-label>
+          <ion-icon
+                  class="dice-icon"
+                  [color]="!luckDiceValue ? 'primary' : fleeSuccess ? 'success' : 'danger'"
+                  [name]="!luckDiceValue ? 'dice-random' : 'inverted-dice-' + luckDiceValue"
+                  slot="icon-only"
+                  #luckDice
+          ></ion-icon>
+        </div>
+        <div class="dice-roll" [ngClass]="fightStatus === 'trying_to_survive' || surviveSuccess !== null ? '' : 'ion-hide'">
+          <ion-label
+                  [color]="!luckDiceValue ? 'primary' : surviveSuccess ? 'success' : 'danger'"
+                  class="ion-text-center ion-text-uppercase"
+          >Jet de survie</ion-label>
+          <ion-icon
+                  class="dice-icon"
+                  color="primary"
+                  [name]="!luckDiceValue ? 'dice-random' : 'inverted-dice-' + luckDiceValue"
+                  slot="icon-only"
+                  #surviveDice
+          ></ion-icon>
+        </div>
+        <div class="dice-roll" [ngClass]="isDodgeDiceDisplayed ? '' : 'ion-hide'">
+          <ion-label
+                  [color]="dodgeDiceValue === 1 ? 'success' : 'primary'"
+                  class="ion-text-center ion-text-uppercase"
+          >{{ dodgeDiceValue === 1 ? 'Critique !' : 'Jet d\'esquive' }}</ion-label>
+          <ion-icon
+                  class="dice-icon"
+                  [color]="!dodgeDiceValue ? 'primary' : dodgeDiceValue <= (billy.dexterity | async).combatValue ? 'success' : 'danger'"
+                  [name]="!dodgeDiceValue ? 'dice-random' : 'inverted-dice-' + dodgeDiceValue"
+                  slot="icon-only"
+                  #dodgeDice
+          ></ion-icon>
+        </div>
+        <div class="dice-roll" [ngClass]="isDoubleDamageDiceDisplayed ? '' : 'ion-hide'">
+          <ion-label
+                  [color]="luckDiceValue === 1 ? 'success' : 'primary'"
+                  class="ion-text-center ion-text-uppercase"
+          >Jet de chance</ion-label>
+          <ion-icon
+                  class="dice-icon"
+                  [color]="!luckDiceValue ? 'primary' : doubleDamageSuccess ? 'success' : 'danger'"
+                  [name]="!luckDiceValue ? 'dice-random' : 'inverted-dice-' + luckDiceValue"
+                  slot="icon-only"
+                  #doubleDamageDice
+          ></ion-icon>
+        </div>
+        <div class="dice-roll" [ngClass]="isAttackDiceDisplayed ? '' : 'ion-hide'">
+          <ion-label
+                  color="primary"
+                  class="ion-text-center ion-text-uppercase"
+          >{{ fightStatus === 'pending_reroll' ? 'Confirmer ?' : 'Jet d\'attaque' }}</ion-label>
+          <div class="attack-dice">
+            <ion-button fill="clear" size="small" (click)="confirmAttack(true)" *ngIf="fightStatus === 'pending_reroll'">
+              <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            <ion-icon
+                    class="dice-icon"
+                    color="primary"
+                    [name]="!attackDiceValue ? 'dice-random' : 'inverted-dice-' + attackDiceValue"
+                    slot="icon-only"
+                    #attackDice
+            ></ion-icon>
+            <ion-button fill="clear" size="small" (click)="confirmAttack(false)" *ngIf="fightStatus === 'pending_reroll'">
+              <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col [ngClass]="isStepsDisplayed ? '' : 'ion-hide'">
+        <div *ngFor="let step of fightService.fightTurns[fightService.fightTurns.length - 1]?.steps" class="ion-text-center">
+          <p>{{ step }}</p>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

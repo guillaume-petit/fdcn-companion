@@ -1,0 +1,65 @@
+<ion-card class="ion-no-margin" #statCard>
+  <ion-card-header>
+    <ion-card-title class="ion-text-center ion-text-uppercase">{{ stat.name }}</ion-card-title>
+    <ion-button
+            class="reset-stat"
+            *ngIf="stat.id !== dexterityId"
+            color="primary"
+            fill="clear"
+            (click)="onResetStat()"
+    >
+      <ion-icon name="refresh-circle-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    <ion-button
+            class="level-up"
+            *ngIf="stat.id !== dexterityId"
+            color="primary"
+            fill="clear"
+            (click)="onLevelUp()"
+    >
+      <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    <ion-button
+            class="test-stat"
+            *ngIf="stat.id === dexterityId"
+            color="primary"
+            fill="clear"
+            [disabled]="testingStat" (click)="onTestStat()"
+    >
+      <ion-icon name="rolling-dices" slot="icon-only"></ion-icon>
+    </ion-button>
+  </ion-card-header>
+  <ion-card-content class="ion-no-padding" [ngClass]="{'ion-hide': testStatActive}">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6" class="stat-details">
+          <div><div>Base</div><div>{{ stat.base }}</div></div>
+          <div><div>Carac.</div><div>{{ stat.trait }}</div></div>
+          <div><div>Matériel</div><div>{{ stat.equipment }}</div></div>
+        </ion-col>
+        <ion-col class="ion-text-center">
+          <div>Total</div>
+          <div><ion-text color="secondary" class="main-stat-value">{{ stat.total }}</ion-text></div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card-content>
+  <ion-card-content [ngClass]="{'ion-hide': !testStatActive}">
+    <div></div>
+    <div class="dice-roll">
+      <ion-label
+              [color]="!diceValue ? '' : diceValue <= stat.total ? 'success' : 'danger'"
+              class="ion-text-center ion-text-uppercase"
+      >
+        {{ !diceValue ? 'Jet d\'adresse' :
+              diceValue <= stat.total ? 'Réussite !' : 'Echec !' }}
+      </ion-label>
+      <ion-icon
+              color="primary"
+              [name]="!diceValue ? 'dice-random' : 'inverted-dice-' + diceValue"
+              slot="icon-only"
+              #dice
+      ></ion-icon>
+    </div>
+  </ion-card-content>
+</ion-card>

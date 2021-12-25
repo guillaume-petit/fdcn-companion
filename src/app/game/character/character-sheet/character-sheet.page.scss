@@ -1,0 +1,119 @@
+ion-card {
+
+  ion-card-title {
+    font-size: 14px;
+  }
+
+  .trait-title {
+    ion-card-header {
+      font-size: 18px;
+    }
+  }
+
+  .main-stat-value {
+    font-size: 1.75em;
+  }
+
+}
+
+.stat-card {
+  height: 100%;
+  display: grid;
+  grid-template-rows: min-content 1fr;
+
+  ion-card-content {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    align-items: center;
+
+    ion-text {
+      font-size: 2em;
+    }
+  }
+}
+
+.luck-card {
+  height: 100%;
+  display: grid;
+  grid-template-rows: min-content 1fr;
+
+  ion-card-header {
+    ion-button {
+      position: absolute;
+      right: 0;
+      top: 0;
+      --padding-end: 6px;
+      --padding-start: 6px;
+    }
+  }
+
+  ion-card-content {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    align-items: center;
+
+    ion-text {
+      font-size: 2em;
+    }
+
+    ion-button:first-child {
+      --padding-start: 0;
+      --padding-end: 0;
+    }
+
+    .luck-roll {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      align-items: center;
+
+      ion-icon {
+        font-size: 42px;
+      }
+    }
+  }
+}
+
+.equipment-card {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+
+  ion-card-content {
+    display: grid;
+  }
+}
+
+.edit-button {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  font-size: 11px;
+}
+
+ion-card-content .stat-control {
+  display: grid;
+
+  ion-button {
+    --padding-start: 0;
+    --padding-end: 0;
+    margin: 0;
+  }
+}
+
+.items-card {
+  .edit-button {
+    font-size: 14px;
+  }
+
+  ion-list {
+    ion-item:last-child {
+      display: grid;
+      justify-content: center;
+      grid-template-columns: 1fr;
+
+      ion-button {
+        width: 100%;
+      }
+    }
+  }
+}

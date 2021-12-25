@@ -1,0 +1,20 @@
+<ion-text>{{ editing ? stat.name.slice(0, 3) : stat.name }}</ion-text>
+<ion-text color="secondary" [ngClass]="'ion-text-' + (editing ? 'center' : 'right')">{{ stat.total }}</ion-text>
+<ion-button
+        *ngIf="editing"
+        class="ion-no-margin ion-no-padding"
+        color="primary"
+        fill="clear"
+        (click)="stat.levelUp()"
+>
+  <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+</ion-button>
+<ion-button
+        *ngIf="editing"
+        class="ion-no-margin ion-no-padding"
+        color="primary"
+        fill="clear"
+        (click)="stat.reset()"
+>
+  <ion-icon name="refresh-circle-outline" slot="icon-only"></ion-icon>
+</ion-button>
