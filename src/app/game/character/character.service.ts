@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Character} from "./character.model";
-import {CharacterModel, StorageService} from "../../storage.service";
+import {Character, CharacterModel} from "./character.model";
+import {StorageService} from "../../storage.service";
 import {BehaviorSubject} from "rxjs";
 
 @Injectable({

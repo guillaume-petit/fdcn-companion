@@ -126,23 +126,25 @@ export class FightService {
         steps.push(`Votre adversaire vous inflige ${enemyDamage}  de dégats.`);
         this.billy.hurt(enemyDamage);
       }
+
+      // FIN DU TOUR
+      if (this.enemy.onEndTurn) {
+        steps.push(...this.enemy.onEndTurn(this.billy, this.enemy));
+        continueFighting = continueFighting && this.checkCurrentSituation(steps);
+      }
       if (this.billy.currentHp === 0) {
         steps.push(`Vous avez été vaincu !`);
         continueFighting = false;
-      }
-    }
-    // FIN DU TOUR
-    if (this.turnLimit !== -1) {
-      if (this.fightTurns.length === this.turnLimit) {
-        steps.push(`Vous n'avez pas réussi à vaincre votre adversaire dans le temps imparti!`);
-        continueFighting = false;
       } else {
-        steps.push(`Nombre de tours restants: ${this.turnLimit - this.fightTurns.length}`);
+        if (this.turnLimit !== -1) {
+          if (this.fightTurns.length === this.turnLimit) {
+            steps.push(`Vous n'avez pas réussi à vaincre votre adversaire dans le temps imparti!`);
+            continueFighting = false;
+          } else {
+            steps.push(`Nombre de tours restants: ${this.turnLimit - this.fightTurns.length}`);
+          }
+        }
       }
-    }
-    if (this.enemy.onEndTurn) {
-      steps.push(...this.enemy.onEndTurn(this.billy, this.enemy));
-      continueFighting = continueFighting && this.checkCurrentSituation(steps);
     }
     this.fightTurns.push({
       billyHp: this.billy.currentHp,

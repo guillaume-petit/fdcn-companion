@@ -1,5 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {ENEMIES, Enemy} from '../enemy.model';
+import {ENEMIES, Enemy, EnemyModel} from '../enemy.model';
 import {Character} from '../../character/character.model';
 import {FightService} from '../fight.service';
 import {DiceHelper} from '../../helpers/dice.helper';
@@ -14,11 +14,14 @@ import {ModalController} from '@ionic/angular';
 export class FightModalComponent implements OnInit {
 
   @Input() billy: Character;
+
   @ViewChild('luckDice', {read: ElementRef, static: false}) luckDice: ElementRef;
   @ViewChild('surviveDice', {read: ElementRef, static: false}) surviveDice: ElementRef;
   @ViewChild('dodgeDice', {read: ElementRef, static: false}) dodgeDice: ElementRef;
   @ViewChild('attackDice', {read: ElementRef, static: false}) attackDice: ElementRef;
   @ViewChild('doubleDamageDice', {read: ElementRef, static: false}) doubleDamageDice: ElementRef;
+
+  enemy: Enemy;
 
   luckDiceValue: number;
   dodgeDiceValue: number;
@@ -39,20 +42,15 @@ export class FightModalComponent implements OnInit {
     'trying_to_survive' |
     'ended' = 'preparing';
 
+  allEnemies: EnemyModel[] = ENEMIES;
+
   constructor(
     public fightService: FightService,
     private diceHelper: DiceHelper,
     private modalCtrl: ModalController
   ) { }
 
-  ngOnInit() {
-    if (!this.fightService.startFight(
-      this.billy,
-      new Enemy({...ENEMIES.find(enemy => enemy.id === 97)}))
-    ) {
-      this.fightStatus = 'ended';
-    }
-  }
+  ngOnInit() {}
 
   attack() {
     this.fightStatus = 'attacking';
@@ -143,6 +141,13 @@ export class FightModalComponent implements OnInit {
   onFinishFight() {
     this.fightService.endFight();
     this.modalCtrl.dismiss(this.billy);
+  }
+
+  onSelectEnemy(enemy: EnemyModel) {
+    this.enemy = new Enemy(enemy);
+    if (!this.fightService.startFight(this.billy, this.enemy)) {
+      this.fightStatus = 'ended';
+    }
   }
 
   get canFlee() {

@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-grid>
+  <ion-grid *ngIf="enemy; else enemySelection">
     <ion-row class="header-row">
       <ion-col class="ion-text-center">
         <ion-label class="ion-text-uppercase">{{ fightService.enemy?.name }}</ion-label>
@@ -132,4 +132,16 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <ng-template #enemySelection>
+    <ion-list>
+      <ion-list-header>Sélectionner un ennemi</ion-list-header>
+      <ion-item *ngFor="let enemy of allEnemies">
+        <ion-avatar slot="start">
+          <img [src]="'/assets/enemies/'+enemy.icon" alt="Enemy Icon">
+        </ion-avatar>
+        <ion-label (click)="onSelectEnemy(enemy)">{{ enemy.id}} : {{ enemy.name }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-template>
 </ion-content>

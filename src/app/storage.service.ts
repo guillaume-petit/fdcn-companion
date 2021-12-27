@@ -4,6 +4,7 @@ import {Subject} from "rxjs";
 import {EquipmentItem} from "./game/equipment/equipment-item.model";
 import {CharacterStat} from "./game/character/character-stat.model";
 import {InventoryItem} from "./game/inventory/inventory-item.model";
+import {CharacterModel} from "./game/character/character.model";
 
 @Injectable({
   providedIn: 'root'
@@ -34,26 +35,4 @@ export class StorageService {
     this.localStorage = await this.storage.create();
     this.storageInitialized.next();
   }
-}
-
-export interface CharacterModel {
-  name: string;
-  trait: 'Indéfini' | 'Guerrier' | 'Paysan' | 'Prudent' | 'Débrouillard';
-  equipment: Array<EquipmentItem>;
-  ability: CharacterStat;
-  dexterity: CharacterStat;
-  toughness: CharacterStat;
-  luck: CharacterStat;
-  glory: number;
-  wealth: number;
-  damage: CharacterStat;
-  armor: CharacterStat;
-  critical: CharacterStat;
-
-  maxLuck: number;
-  maxHp: number;
-  currentHp: number;
-  currentLuck: number;
-
-  items: Array<InventoryItem>;
 }

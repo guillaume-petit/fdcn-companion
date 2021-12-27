@@ -1,7 +1,6 @@
 import {EquipmentItem, EquipmentItemId} from '../equipment/equipment-item.model';
 import {BehaviorSubject} from 'rxjs';
 import {CharacterStat, CharacterStatId} from './character-stat.model';
-import {CharacterModel} from "../../storage.service";
 import {InventoryItem} from "../inventory/inventory-item.model";
 
 export class Character {
@@ -55,14 +54,17 @@ export class Character {
     this.name = name;
 
     this.toughness.subscribe(toughness => {
-      const newHpMax = toughness.total * 3;
-      this.currentHp += newHpMax - this.maxHp;
-      this.maxHp = newHpMax;
+      this.maxHp = toughness.total * 3;
+      if (this.currentHp > this.maxHp) {
+        this.currentHp = this.maxHp
+      }
     });
 
     this.luck.subscribe(luck => {
-      this.currentLuck += luck.total - this.maxLuck;
       this.maxLuck = luck.total;
+      if (this.currentLuck > this.maxLuck) {
+        this.currentLuck = this.maxLuck;
+      }
     });
 
     this.trait.subscribe(trait => {
@@ -258,4 +260,26 @@ export class Character {
         return this.critical;
     }
   }
+}
+
+export interface CharacterModel {
+  name: string;
+  trait: 'Indéfini' | 'Guerrier' | 'Paysan' | 'Prudent' | 'Débrouillard';
+  equipment: Array<EquipmentItem>;
+  ability: CharacterStat;
+  dexterity: CharacterStat;
+  toughness: CharacterStat;
+  luck: CharacterStat;
+  glory: number;
+  wealth: number;
+  damage: CharacterStat;
+  armor: CharacterStat;
+  critical: CharacterStat;
+
+  maxLuck: number;
+  maxHp: number;
+  currentHp: number;
+  currentLuck: number;
+
+  items: Array<InventoryItem>;
 }

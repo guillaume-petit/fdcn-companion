@@ -18,6 +18,7 @@ export class Enemy {
   turnLimit: (billy: Character) => number;
   onEndTurn: (billy: Character, enemy: Enemy) => string[];
   additionalProperties: any;
+  icon: string;
 
   constructor(obj: EnemyModel) {
     this.id = obj.id;
@@ -31,6 +32,7 @@ export class Enemy {
     this.turnLimit = obj.turnLimit;
     this.onEndTurn = obj.onEndTurn;
     this.additionalProperties = obj.additionalProperties;
+    this.icon = obj.icon || 'default.svg';
   }
 
   hurt(amount: number) {
@@ -51,7 +53,8 @@ export const ENEMIES: Array<EnemyModel> = [
     name: 'Guerrier orcs',
     ability: 5,
     hp: 8,
-    bonusPB: 4
+    bonusPB: 4,
+    icon: 'orc-head.svg'
   },
   {
     id: 19,
@@ -60,6 +63,7 @@ export const ENEMIES: Array<EnemyModel> = [
     hp: 12,
     armor: 1,
     bonusPB: 4,
+    icon: 'guards.svg',
     statModifier: () => [{statId: CharacterStatId.dexterity, value: -1}]
   },
   {
@@ -68,6 +72,7 @@ export const ENEMIES: Array<EnemyModel> = [
     ability: 4,
     hp: 10,
     armor: 0,
+    icon: 'evil-minion.svg',
     statModifier: billy => {
         if (billy.equipment.getValue().find(e => e.id === EquipmentItemId.arc)) {
           return [{statId: CharacterStatId.damage, value: -1}];
@@ -85,13 +90,15 @@ export const ENEMIES: Array<EnemyModel> = [
     name: 'Orc familier',
     ability: 10,
     hp: 16,
-    damage: 1
+    damage: 1,
+    icon: 'orc-head.svg'
   },
   {
     id: 58,
     name: 'Gnoll sanguinaire',
     ability: 5,
     hp: 10,
+    icon: 'goblin-head.svg',
     statModifier: billy => [{ statId: CharacterStatId.ability, value: -Math.floor(billy.ability.getValue().total / 2) }]
   },
   {
@@ -100,6 +107,7 @@ export const ENEMIES: Array<EnemyModel> = [
     ability: 11,
     hp: 15,
     bonusPB: 6,
+    icon: 'cowled.svg',
     statModifier: () => [{ statId: CharacterStatId.dexterity, value: -1 }]
   },
   {
@@ -108,6 +116,7 @@ export const ENEMIES: Array<EnemyModel> = [
     ability: 12,
     hp: 20,
     bonusPB: 4,
+    icon: 'evil-minion.svg',
     statModifier: billy => {
         if (billy.equipment.getValue().find(e => e.id === EquipmentItemId.arc)) {
           return [
@@ -132,6 +141,7 @@ export const ENEMIES: Array<EnemyModel> = [
     hp: 20,
     damage: 1,
     bonusPB: 4,
+    icon: 'massacre.png',
     turnLimit: billy => billy.items.filter(item => item.ref === ITEM.info).length >= 3 ? 8 : 5,
     onEndTurn: (billy, enemy) => {
       const steps = [];
@@ -159,7 +169,7 @@ export const ENEMIES: Array<EnemyModel> = [
   }
 ];
 
-interface EnemyModel {
+export interface EnemyModel {
   id: number;
   name: string;
   ability: number;
@@ -171,4 +181,5 @@ interface EnemyModel {
   turnLimit?: (billy: Character) => number;
   onEndTurn?: (billy: Character, enemy: Enemy) => string[];
   additionalProperties?: any;
+  icon?: string;
 }
