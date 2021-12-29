@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Enemy} from './enemy.model';
 import {Character} from '../character/character.model';
 import {ITEM} from '../inventory/inventory-item.model';
-import {BehaviorSubject, combineLatest, pipe} from "rxjs";
+import {BehaviorSubject, combineLatest} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +23,8 @@ export class FightService {
     this.billy = billy;
     this.enemy = enemy;
 
-    combineLatest([this.billy.ability, this.enemy.ability, this.enemy.bonusPB]).subscribe(([billyAbility, enemyAbiliy, bonusPB]) => {
-      this.abilityOffset.next(billyAbility.combatValue + bonusPB - enemyAbiliy);
+    combineLatest([this.billy.ability, this.enemy.ability, this.enemy.bonusPB]).subscribe(([billyAbility, enemyAbility, bonusPB]) => {
+      this.abilityOffset.next(billyAbility.combatValue + bonusPB - enemyAbility);
     });
 
     this.abilityOffset.subscribe(abilityOffset => {
@@ -51,9 +51,8 @@ export class FightService {
     if (enemy.statModifier) {
       const modifiers = enemy.statModifier.call(this, this.billy);
       for (const modifier of modifiers) {
-        const stat = this.billy.getStat(modifier.statId);
-        stat.modifier = modifier.value;
-        steps.push(`Vous obtenez ${modifier.value} de ${stat.id} durant ce combat.`);
+        this.billy.modifyStat(modifier.statId, modifier.value);
+        steps.push(`Vous obtenez ${modifier.value} de ${modifier.statId} durant ce combat.`);
       }
     }
     if (enemy.turnLimit) {
@@ -74,7 +73,7 @@ export class FightService {
   endFight() {
     if (this.enemy.statModifier) {
       for (const modifier of this.enemy.statModifier.call(this, this.billy)) {
-        this.billy.getStat(modifier.statId).modifier = 0;
+        this.billy.modifyStat(modifier.statId, 0);
       }
     }
     this.billy = null;
@@ -91,42 +90,19 @@ export class FightService {
     }
     const result = this.currentSituation.damages.find(damage => damage.dice === attack);
 
-    // ATTAQUE DE BILLY
-    if (dodge === 1) {
-      const billyDamage = result.billyDamage + this.billy.critical.combatValue;
-      this.enemy.hurt(billyDamage);
-      steps.push(`Vous infligez ${billyDamage} de dégats critiques à votre adversaire.`);
-    } else {
-      let billyDamage = result.billyDamage + this.billy.damage.combatValue - this.enemy.armor;
-      if (billyDamage < 0) {
-        billyDamage = 0;
+    if (!this.enemy.hasInitiative) {
+      continueFighting = continueFighting && this.billyAttack(attack, dodge === 1, result.billyDamage, steps);
+      if (continueFighting) {
+        continueFighting = continueFighting && this.enemyAttack(dodge, result.enemyDamage, steps);
       }
-      steps.push(`Vous infligez ${billyDamage} de dégats à votre adversaire.`);
-      this.enemy.hurt(billyDamage);
+    } else {
+      continueFighting = continueFighting && this.enemyAttack(dodge, result.enemyDamage, steps);
+      if (continueFighting) {
+        continueFighting = continueFighting && this.billyAttack(attack, dodge === 1, result.billyDamage, steps);
+      }
     }
-    if (this.enemy.hp === 0) {
-      steps.push(`Vous avez vaincu votre adversaire !`);
-      if (this.billy.items.find(value => value.ref === ITEM.petitMedaillon)) {
-        this.billy.heal(2);
-        steps.push(`Votre ${ITEM.petitMedaillon} vous restaure 2 POINTS DE VIE`);
-      }
-      continueFighting = false;
-    } else {
-      // ATTAQUE DE L'ADVERSAIRE
-      if (dodge && dodge <= this.billy.dexterity.getValue().combatValue) {
-        steps.push(`Vous esquivez complètement l'attaque de votre adversaire.`);
-      } else {
-        let enemyDamage = result.enemyDamage + this.enemy.damage - this.billy.armor.combatValue;
-        if (this.billy.trait.getValue() === 'Paysan' && enemyDamage > 3) {
-          enemyDamage = 3;
-        }
-        if (enemyDamage < 0) {
-          enemyDamage = 0;
-        }
-        steps.push(`Votre adversaire vous inflige ${enemyDamage}  de dégats.`);
-        this.billy.hurt(enemyDamage);
-      }
 
+    if (continueFighting) {
       // FIN DU TOUR
       if (this.enemy.onEndTurn) {
         steps.push(...this.enemy.onEndTurn(this.billy, this.enemy));
@@ -152,6 +128,56 @@ export class FightService {
       steps
     });
     return continueFighting;
+  }
+
+  private enemyAttack(dodge: number, damage: number, steps: any[]) {
+    if (dodge && dodge <= this.billy.dexterity.getValue().combatValue) {
+      steps.push(`Vous esquivez complètement l'attaque de votre adversaire.`);
+    } else {
+      let enemyDamage = damage + this.enemy.damage - this.billy.armor.combatValue;
+      if (this.billy.trait.getValue() === 'Paysan' && enemyDamage > 3) {
+        enemyDamage = 3;
+      }
+      if (enemyDamage < 0) {
+        enemyDamage = 0;
+      }
+      steps.push(`Votre adversaire vous inflige ${enemyDamage}  de dégats.`);
+      this.billy.hurt(enemyDamage);
+
+      if (this.billy.currentHp === 0) {
+        steps.push(`Vous avez été vaincu !`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private billyAttack(attack: number, critical: boolean, damage: number, steps: any[]) {
+    if (this.enemy.dodge(attack)) {
+      steps.push('L\'adversaire esquive votre coup!');
+      return true;
+    }
+    if (critical) {
+      const billyDamage = damage + this.billy.critical.combatValue;
+      this.enemy.hurt(billyDamage);
+      steps.push(`Vous infligez ${billyDamage} de dégats critiques à votre adversaire.`);
+    } else {
+      let billyDamage = damage + this.billy.damage.combatValue - this.enemy.armor;
+      if (billyDamage < 0) {
+        billyDamage = 0;
+      }
+      steps.push(`Vous infligez ${billyDamage} de dégats à votre adversaire.`);
+      this.enemy.hurt(billyDamage);
+    }
+    if (this.enemy.hp === 0) {
+      steps.push(`Vous avez vaincu votre adversaire !`);
+      if (this.billy.items.find(value => value.ref === ITEM.petitMedaillon)) {
+        this.billy.heal(2);
+        steps.push(`Votre ${ITEM.petitMedaillon} vous restaure 2 POINTS DE VIE`);
+      }
+      return false;
+    }
+    return true;
   }
 
   tryToFlee(luckTest?: number): boolean {

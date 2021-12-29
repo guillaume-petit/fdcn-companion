@@ -242,22 +242,43 @@ export class Character {
     }
   }
 
-  getStat(statId: CharacterStatId): CharacterStat {
+  modifyStat(statId: CharacterStatId, value: number) {
     switch (statId) {
       case CharacterStatId.luck:
-        return this.luck.getValue();
+        const luck = this.luck.getValue();
+        luck.modifier = value;
+        this.luck.next(luck);
+        break;
       case CharacterStatId.ability:
-        return this.ability.getValue();
+        const ability = this.luck.getValue();
+        ability.modifier = value;
+        this.luck.next(ability);
+        break;
       case CharacterStatId.dexterity:
-        return this.dexterity.getValue();
+        const dexterity = this.luck.getValue();
+        dexterity.modifier = value;
+        this.luck.next(dexterity);
+        break;
       case CharacterStatId.toughness:
-        return this.toughness.getValue();
+        const toughness = this.luck.getValue();
+        toughness.modifier = value;
+        this.luck.next(toughness);
+        break;
       case CharacterStatId.armor:
-        return this.armor;
+        const armor = this.luck.getValue();
+        armor.modifier = value;
+        this.luck.next(armor);
+        break;
       case CharacterStatId.damage:
-        return this.damage;
+        const damage = this.luck.getValue();
+        damage.modifier = value;
+        this.luck.next(damage);
+        break;
       case CharacterStatId.critical:
-        return this.critical;
+        const critical = this.luck.getValue();
+        critical.modifier = value;
+        this.luck.next(critical);
+        break;
     }
   }
 }
