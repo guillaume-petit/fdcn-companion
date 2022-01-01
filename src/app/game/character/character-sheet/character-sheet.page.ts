@@ -8,7 +8,6 @@ import {CharacterStat} from '../character-stat.model';
 import {BehaviorSubject} from 'rxjs';
 import {FightModalComponent} from '../../fight/fight-modal/fight-modal.component';
 import {DiceHelper} from '../../helpers/dice.helper';
-import {FightService} from '../../fight/fight.service';
 import {AnimationHelper} from '../../helpers/animation.helper';
 import {InventoryItem, ITEMS} from "../../inventory/inventory-item.model";
 
@@ -41,7 +40,6 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
     private router: Router,
     private modalCtrl: ModalController,
     private diceHelper: DiceHelper,
-    private fightService: FightService,
     private animationHelper: AnimationHelper
   ) { }
 
@@ -190,11 +188,6 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
       component: FightModalComponent,
       componentProps: {
         billy: this.billy
-      }
-    });
-    modal.onDidDismiss().then(result => {
-      if (result.role === 'backdrop') {
-        this.fightService.endFight();
       }
     });
     return modal.present();
