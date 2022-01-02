@@ -2,6 +2,8 @@ import {CharacterStatId} from "../character/character-stat.model";
 import {EquipmentItemId} from "../equipment/equipment-item.model";
 import {ITEM} from "../inventory/inventory-item.model";
 import {EnemyModel} from "./enemy.model";
+import {BasicFightRules} from "./basic-fight-rules";
+import {FightState} from "./fight-state";
 
 export const ENEMIES: Array<EnemyModel> = [
   {
@@ -205,5 +207,22 @@ export const ENEMIES: Array<EnemyModel> = [
       enemy.ability.next(7 + Math.ceil(enemy.hp / 4));
       return [];
     }
+  }, {
+    id: 232,
+    name: 'Ogre mal embouché',
+    icon: 'troll.svg',
+    ability: 10,
+    hp: 20,
+    damage: 1,
+    bonusPB: 4,
+    fightRules: new class extends BasicFightRules {
+      getEnemyDamage(fightState: FightState, damage: number): number {
+        let enemyDamage = super.getEnemyDamage(fightState, damage);
+        if (fightState.enemy.hp <= 10) {
+          enemyDamage *= 2;
+        }
+        return enemyDamage;
+      }
+    }()
   }
 ];

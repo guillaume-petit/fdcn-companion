@@ -1,31 +1,22 @@
-import {Character} from "../character/character.model";
-import {Enemy} from "./enemy.model";
-import {BehaviorSubject} from "rxjs";
+import {FightState} from "./fight-state";
 
 export interface FightRules {
-  billy: Character;
-  enemy: Enemy;
-  fightTurns: Array<FightStatus>;
-  currentSituation: FightSituation;
-  brinkOfDeath: number;
-  turnLimit: number;
-  abilityOffset: BehaviorSubject<number>;
 
-  start(billy: Character, enemy: Enemy): boolean;
+  start(fightState: FightState): boolean;
 
-  end(): void;
+  end(fightState: FightState): void;
 
-  next(attack: number, dodge?: number): boolean;
+  next(fightState: FightState, attack: number, dodge?: number): boolean;
 
-  enemyAttack(dodge: number, damage: number, steps: any[]): boolean;
+  enemyAttack(fightState: FightState, dodge: number, damage: number, steps: any[]): boolean;
 
-  billyAttack(attack: number, critical: boolean, damage: number, steps: any[]): boolean;
+  billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]): boolean;
 
-  tryToFlee(luckTest?: number): boolean;
+  tryToFlee(fightState: FightState, luckTest?: number): boolean;
 
-  tryToSurvive(luckTest?: number): boolean;
+  tryToSurvive(fightState: FightState, luckTest?: number): boolean;
 
-  tryToDoubleDamage(luckTest?: number): boolean;
+  tryToDoubleDamage(fightState: FightState, luckTest?: number): boolean;
 }
 
 export interface FightStatus {
