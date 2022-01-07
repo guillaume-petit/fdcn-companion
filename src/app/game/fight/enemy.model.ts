@@ -10,7 +10,7 @@ export class Enemy {
   id: string;
   name: string;
   ability = new BehaviorSubject<number>(0);
-  hp: number;
+  hp = new BehaviorSubject<number>(0);
   armor = 0;
   damage = 0;
   bonusPB = new BehaviorSubject<number>(0);
@@ -18,7 +18,6 @@ export class Enemy {
   statModifier: (billy: Character) => Array<StatModifier>;
   turnLimit: (billy: Character) => number;
   dodge: (attackDice: number, ctx?: FightState) => boolean;
-  onEndTurn: (billy: Character, enemy: Enemy) => string[];
   additionalProperties: any;
   icon: string;
   hasInitiative: boolean;
@@ -29,14 +28,13 @@ export class Enemy {
     this.name = obj.name;
     this.ability.next(obj.ability);
     this.bonusPB.next(obj.bonusPB || 0);
-    this.hp = obj.hp;
+    this.hp.next(obj.hp);
     this.armor = obj.armor || 0;
     this.damage = obj.damage || 0;
     this.minHp = obj.minHp || 0;
     this.statModifier = obj.statModifier;
     this.turnLimit = obj.turnLimit;
     this.dodge = obj.dodge || (() => false);
-    this.onEndTurn = obj.onEndTurn;
     this.additionalProperties = obj.additionalProperties;
     this.icon = obj.icon || 'default.svg';
     this.hasInitiative = obj.hasInitiative || false;
@@ -44,18 +42,18 @@ export class Enemy {
   }
 
   hurt(amount: number) {
-    this.hp -= amount;
-    if (this.hp < 0) {
-      this.hp = 0;
+    this.hp.next(this.hp.getValue() - amount);
+    if (this.hp.getValue() < 0) {
+      this.hp.next(0);
     }
   }
 
   heal(amount: number) {
-    this.hp += amount;
+    this.hp.next(this.hp.getValue() + amount);
   }
 
   get isDefeated() {
-    return this.hp === 0 || this.hp <= this.minHp;
+    return this.hp.getValue() === 0 || this.hp.getValue() <= this.minHp;
   }
 }
 
@@ -71,7 +69,6 @@ export interface EnemyModel {
   statModifier?: (billy: Character) => Array<StatModifier>;
   turnLimit?: (billy: Character) => number;
   dodge?: (attackDice: number, ctx?: FightState) => boolean;
-  onEndTurn?: (billy: Character, enemy: Enemy) => string[];
   additionalProperties?: any;
   icon?: string;
   hasInitiative?: boolean;

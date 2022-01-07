@@ -12,6 +12,7 @@ export class FightState {
   turnLimit = -1;
   abilityOffset = new BehaviorSubject<number>(0);
   fightEnded = false;
+  steps: string[] = [];
 
   constructor(billy: Character, enemy: Enemy) {
     this.billy = billy;

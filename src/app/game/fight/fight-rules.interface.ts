@@ -8,9 +8,9 @@ export interface FightRules {
 
   next(fightState: FightState, attack: number, dodge?: number): void;
 
-  enemyAttack(fightState: FightState, dodge: number, damage: number, steps: any[]): void;
+  enemyAttack(fightState: FightState, dodge: number, damage: number, steps: any[]): number;
 
-  billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]): void;
+  billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]);
 
   tryToFlee(fightState: FightState, luckTest?: number): boolean;
 
@@ -22,7 +22,6 @@ export interface FightRules {
 export interface FightStatus {
   billyHp: number;
   enemyHp: number;
-  steps: Array<string>;
 }
 
 export interface FightSituation {

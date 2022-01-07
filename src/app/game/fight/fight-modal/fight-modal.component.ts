@@ -104,7 +104,7 @@ export class FightModalComponent implements OnInit {
       setTimeout(async () => {
         this.luckDiceValue = await this.diceHelper.roll(this.luckDice);
         this.fleeSuccess = this.enemy.fightRules.tryToFlee(this.fightState, this.luckDiceValue);
-        this.fightStatus = this.fleeSuccess ? 'ended' : 'pending_attack';
+        this.fightStatus = this.fleeSuccess || this.fightState.fightEnded ? 'ended' : 'pending_attack';
       }, 200);
     }
   }
@@ -113,7 +113,7 @@ export class FightModalComponent implements OnInit {
     this.fightStatus = 'trying_to_survive';
     this.luckDiceValue = null;
     if (this.billy.currentLuck > 5) {
-      this.enemy.fightRules.tryToSurvive(this.fightState);
+      this.surviveSuccess = this.enemy.fightRules.tryToSurvive(this.fightState);
       this.fightStatus = 'pending_attack';
     } else {
       setTimeout(async () => {
@@ -128,7 +128,7 @@ export class FightModalComponent implements OnInit {
     this.fightStatus = 'testing_double_damage';
     this.luckDiceValue = null;
     if (this.billy.currentLuck > 5) {
-      this.enemy.fightRules.tryToDoubleDamage(this.fightState);
+      this.doubleDamageSuccess = this.enemy.fightRules.tryToDoubleDamage(this.fightState);
       this.fightStatus = this.enemy.isDefeated ? 'ended' : 'pending_attack';
     } else {
       setTimeout(async () => {
@@ -165,7 +165,7 @@ export class FightModalComponent implements OnInit {
   }
 
   get canAttack() {
-    return !['brink_of_death', 'trying_to_survive', 'ended'].includes(this.fightStatus);
+    return !['brink_of_death', 'trying_to_survive', 'ended'].includes(this.fightStatus) && !this.fightState.fightEnded;
   }
 
   get canDoubleDamage() {

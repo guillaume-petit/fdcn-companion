@@ -82,9 +82,13 @@ export const ENEMIES: Array<EnemyModel> = [
       }
       return [];
     },
-    onEndTurn: (billy, enemy) => {
-      enemy.ability.next(7 + Math.ceil(enemy.hp / 4));
-      return [];
+    fightRules: new class extends BasicFightRules {
+      start(fightState: FightState) {
+        super.start(fightState);
+        fightState.enemy.hp.subscribe(hp => {
+          fightState.enemy.ability.next(7 + Math.ceil(hp / 4));
+        });
+      }
     }
   }, {
     id: '97',
@@ -98,23 +102,24 @@ export const ENEMIES: Array<EnemyModel> = [
       counter: 0
     },
     turnLimit: billy => billy.items.filter(item => item.ref === ITEM.info).length >= 3 ? 8 : 5,
-    onEndTurn: (billy, enemy) => {
-      const steps = [];
-      if (++enemy.additionalProperties.counter % 3 === 0) {
-        let dexterityRoll = Math.floor(Math.random() * 6 + 1);
-        if (billy.dexterity.getValue().combatValue > 1) {
-          if (dexterityRoll <= billy.dexterity.getValue().combatValue) {
-            steps.push(`Massacre invoque un trait de flamme mais vous esquivez son attaque ! (Jet d\'esquive réussi : ${dexterityRoll})`);
+    fightRules: new class extends BasicFightRules {
+      endTurn(fightState: FightState) {
+        if (++fightState.enemy.additionalProperties.counter % 3 === 0) {
+          let dexterityRoll = Math.floor(Math.random() * 6 + 1);
+          if (fightState.billy.dexterity.getValue().combatValue > 1) {
+            if (dexterityRoll <= fightState.billy.dexterity.getValue().combatValue) {
+              fightState.steps.push(`Massacre invoque un trait de flamme mais vous esquivez son attaque ! (Jet d\'esquive réussi : ${dexterityRoll})`);
+            } else {
+              fightState.billy.hurt(3);
+              fightState.steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts ! (Jet d\'esquive raté : ${dexterityRoll})`);
+            }
           } else {
-            billy.hurt(3);
-            steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts ! (Jet d\'esquive raté : ${dexterityRoll})`);
+            fightState.billy.hurt(3);
+            fightState.steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts.`);
           }
-        } else {
-          billy.hurt(3);
-          steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts.`);
         }
+        super.endTurn(fightState);
       }
-      return steps;
     }
   }, {
     id: '114',
@@ -161,9 +166,13 @@ export const ENEMIES: Array<EnemyModel> = [
       }
       return [{statId: CharacterStatId.dexterity, value: -1}];
     },
-    onEndTurn: (billy, enemy) => {
-      enemy.ability.next(7 + Math.ceil(enemy.hp / 4));
-      return [];
+    fightRules: new class extends BasicFightRules {
+      start(fightState: FightState) {
+        super.start(fightState);
+        fightState.enemy.hp.subscribe(hp => {
+          fightState.enemy.ability.next(7 + Math.ceil(hp / 4));
+        });
+      }
     }
   }, {
     id: '162',
@@ -201,9 +210,13 @@ export const ENEMIES: Array<EnemyModel> = [
     ability: 11,
     hp: 16,
     bonusPB: 4,
-    onEndTurn: (billy, enemy) => {
-      enemy.ability.next(7 + Math.ceil(enemy.hp / 4));
-      return [];
+    fightRules: new class extends BasicFightRules {
+      start(fightState: FightState) {
+        super.start(fightState);
+        fightState.enemy.hp.subscribe(hp => {
+          fightState.enemy.ability.next(7 + Math.ceil(hp / 4));
+        });
+      }
     }
   }, {
     id: '232',
@@ -216,7 +229,7 @@ export const ENEMIES: Array<EnemyModel> = [
     fightRules: new class extends BasicFightRules {
       getEnemyDamage(fightState: FightState, damage: number): number {
         let enemyDamage = super.getEnemyDamage(fightState, damage);
-        if (fightState.enemy.hp <= 10) {
+        if (fightState.enemy.hp.getValue() <= 10) {
           enemyDamage *= 2;
         }
         return enemyDamage;
@@ -246,8 +259,12 @@ export const ENEMIES: Array<EnemyModel> = [
     hp: 16,
     damage: 1,
     fightRules: new class extends BasicFightRules {
-      billyCriticalHit(damage: number, fightState: FightState, steps: any[]) {
-        steps.push('La trollesse esquive votre coup critique grâce à ses multiples bras.');
+      getBillyDamage(critical: boolean, damage: number, fightState: FightState): number {
+        if (critical) {
+          fightState.steps.push('La trollesse esquive votre coup critique grâce à ses multiples bras.');
+          return 0;
+        }
+        return super.getBillyDamage(critical, damage, fightState);
       }
     }
   }, {
@@ -257,7 +274,8 @@ export const ENEMIES: Array<EnemyModel> = [
     hp: 26,
     bonusPB: 2,
     additionalProperties: {
-      entangled: true
+      entangled: true,
+      mortelleAttack: 0
     },
     fightRules: new class extends BasicFightRules {
       start(fightState: FightState) {
@@ -265,14 +283,36 @@ export const ENEMIES: Array<EnemyModel> = [
         return super.start(fightState);
       }
 
-      billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]) {
+      billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number) {
         if (attack >= 5 && fightState.enemy.additionalProperties.entangled) {
           fightState.enemy.additionalProperties.entangled = false;
           fightState.enemy.bonusPB.next(4);
           fightState.billy.modifyStat(CharacterStatId.dexterity, 0);
-          steps.push('Vous vous libérez des toiles d\'araignées qui gênaient vos mouvements.');
+          fightState.steps.push('Vous vous libérez des toiles d\'araignées qui gênaient vos mouvements.');
         }
-        super.billyAttack(fightState, attack, critical, damage, steps);
+        super.billyAttack(fightState, attack, critical, damage);
+      }
+
+      getBillyDamage(critical: boolean, damage: number, fightState: FightState): number {
+        let billyDamage = super.getBillyDamage(critical, damage, fightState);
+        if (billyDamage >= 5) {
+          billyDamage *= 2;
+          fightState.steps.push('Votre attaque puissante pénètre la carapace chitineuse de Mortelle.');
+        }
+        return billyDamage;
+      }
+
+      enemyAttack(fightState: FightState, dodge: number, damage: number): number {
+        fightState.enemy.additionalProperties.mortelleAttack = super.enemyAttack(fightState, dodge, damage);
+        return fightState.enemy.additionalProperties.mortelleAttack;
+      }
+
+      endTurn(fightState: FightState) {
+        if (fightState.enemy.additionalProperties.mortelleAttack > 0) {
+          fightState.billy.hurt(fightState.enemy.additionalProperties.mortelleAttack);
+          fightState.steps.push(`L\'acide de Mortelle vous inflige ${fightState.enemy.additionalProperties.mortelleAttack} dégâts supplémentaires.`);
+        }
+        super.endTurn(fightState);
       }
 
       end(fightState: FightState) {
@@ -280,6 +320,49 @@ export const ENEMIES: Array<EnemyModel> = [
           fightState.billy.modifyStat(CharacterStatId.dexterity, 0);
         }
         super.end(fightState);
+      }
+    }
+  }, {
+    id: '286',
+    name: 'Plante Carnitrex',
+    ability: 13,
+    hp: 18,
+    bonusPB: 7,
+    statModifier: billy => {
+      let modifiers = [];
+      if (billy.armor.total > 0) {
+        modifiers.push({statId: CharacterStatId.armor, value: -billy.armor.total});
+      }
+      modifiers.push({statId: CharacterStatId.ability, value: -4});
+      return modifiers;
+    },
+    fightRules: new class extends BasicFightRules {
+      endTurn(fightState: FightState) {
+        fightState.billy.hurt(1);
+        fightState.steps.push('Les spores acides vous font perdre 1 POINT DE VIE.');
+        super.endTurn(fightState);
+      }
+    }
+  }, {
+    id: '297',
+    name: '2 sergents d\'arme',
+    ability: 8,
+    hp: 12,
+    armor: 1,
+    damage: 1
+  }, {
+    id: '306',
+    name: 'Ivrogne qui déteste Giraud',
+    ability: 3,
+    hp: 8,
+    statModifier: billy => [{statId: CharacterStatId.ability, value: -billy.ability.getValue().equipment}],
+    fightRules: new class extends BasicFightRules {
+      endTurn(fightState: FightState) {
+        if (fightState.enemy.ability.getValue() > 0) {
+          fightState.steps.push('Votre adversaire perd 1 POINT D\'HABILETÉ.');
+          fightState.enemy.ability.next(fightState.enemy.ability.getValue() - 1);
+        }
+        super.endTurn(fightState);
       }
     }
   }

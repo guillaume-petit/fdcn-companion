@@ -126,7 +126,7 @@
     </ion-row>
     <ion-row>
       <ion-col [ngClass]="isStepsDisplayed ? '' : 'ion-hide'">
-        <div *ngFor="let step of fightState.fightTurns[fightState.fightTurns.length - 1]?.steps" class="ion-text-center">
+        <div *ngFor="let step of fightState.steps" class="ion-text-center">
           <p>{{ step }}</p>
         </div>
       </ion-col>
