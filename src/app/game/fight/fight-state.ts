@@ -7,10 +7,11 @@ export class FightState {
   billy: Character;
   enemy: Enemy;
   fightTurns: Array<FightStatus> = [];
-  currentSituation: FightSituation;
+  currentSituation: BehaviorSubject<FightSituation> = new BehaviorSubject<FightSituation>(null);
   brinkOfDeath = 0;
   turnLimit = -1;
   abilityOffset = new BehaviorSubject<number>(0);
+  fightEnded = false;
 
   constructor(billy: Character, enemy: Enemy) {
     this.billy = billy;
@@ -22,21 +23,21 @@ export class FightState {
 
     this.abilityOffset.subscribe(abilityOffset => {
       if (abilityOffset < -7) {
-        this.currentSituation = {
+        this.currentSituation.next({
           name: 'Dominé',
           fleeCost: -1,
           abilityOffset: abilityOffset,
           damages: []
-        };
+        });
       } else if (abilityOffset > 7) {
-        this.currentSituation = {
+        this.currentSituation.next({
           name: 'Dominant',
           fleeCost: -1,
           abilityOffset: abilityOffset,
           damages: []
-        };
+        });
       } else {
-        this.currentSituation = SITUATION_TABLE.find(s => s.abilityOffset === abilityOffset);
+        this.currentSituation.next(SITUATION_TABLE.find(s => s.abilityOffset === abilityOffset));
       }
     });
   }

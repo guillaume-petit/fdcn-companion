@@ -3,19 +3,21 @@ import {BehaviorSubject} from "rxjs";
 import {StatModifier} from "../character/stat-modifier.model";
 import {FightRules} from "./fight-rules.interface";
 import {BasicFightRules} from "./basic-fight-rules";
+import {FightState} from "./fight-state";
 
 export class Enemy {
 
-  id: number;
+  id: string;
   name: string;
   ability = new BehaviorSubject<number>(0);
   hp: number;
   armor = 0;
   damage = 0;
   bonusPB = new BehaviorSubject<number>(0);
+  minHp = 0;
   statModifier: (billy: Character) => Array<StatModifier>;
   turnLimit: (billy: Character) => number;
-  dodge: (attackDice: number) => boolean;
+  dodge: (attackDice: number, ctx?: FightState) => boolean;
   onEndTurn: (billy: Character, enemy: Enemy) => string[];
   additionalProperties: any;
   icon: string;
@@ -30,6 +32,7 @@ export class Enemy {
     this.hp = obj.hp;
     this.armor = obj.armor || 0;
     this.damage = obj.damage || 0;
+    this.minHp = obj.minHp || 0;
     this.statModifier = obj.statModifier;
     this.turnLimit = obj.turnLimit;
     this.dodge = obj.dodge || (() => false);
@@ -50,23 +53,27 @@ export class Enemy {
   heal(amount: number) {
     this.hp += amount;
   }
+
+  get isDefeated() {
+    return this.hp === 0 || this.hp <= this.minHp;
+  }
 }
 
 export interface EnemyModel {
-  id: number;
+  id: string;
   name: string;
   ability: number;
   hp: number;
   armor?: number;
   damage?: number;
   bonusPB?: number;
+  minHp?: number;
   statModifier?: (billy: Character) => Array<StatModifier>;
   turnLimit?: (billy: Character) => number;
-  dodge?: (attackDice: number) => boolean;
+  dodge?: (attackDice: number, ctx?: FightState) => boolean;
   onEndTurn?: (billy: Character, enemy: Enemy) => string[];
   additionalProperties?: any;
   icon?: string;
   hasInitiative?: boolean;
   fightRules?: FightRules;
-
 }

@@ -45,7 +45,7 @@ export class Character {
 
   maxLuck = 0;
   maxHp = 0;
-  currentHp = 0;
+  currentHp = new BehaviorSubject(0);
   currentLuck = 0;
 
   items: Array<InventoryItem> = [];
@@ -55,8 +55,8 @@ export class Character {
 
     this.toughness.subscribe(toughness => {
       this.maxHp = toughness.total * 3;
-      if (this.currentHp > this.maxHp) {
-        this.currentHp = this.maxHp
+      if (this.currentHp.getValue() > this.maxHp) {
+        this.currentHp.next(this.maxHp);
       }
     });
 
@@ -175,7 +175,7 @@ export class Character {
     character.toughness.next(new CharacterStat(c.toughness));
     character.luck.next(new CharacterStat(c.luck));
     character.equipment.next(c.equipment);
-    character.currentHp = c.currentHp;
+    character.currentHp.next(c.currentHp);
     character.currentLuck = c.currentLuck;
     return character;
   }
@@ -196,7 +196,7 @@ export class Character {
       critical: character.critical,
       maxLuck: character.maxLuck,
       maxHp: character.maxHp,
-      currentHp: character.currentHp,
+      currentHp: character.currentHp.getValue(),
       currentLuck: character.currentLuck,
       items: character.items
     };
@@ -215,16 +215,16 @@ export class Character {
   }
 
   heal(amount: number) {
-    this.currentHp += amount;
-    if (this.currentHp > this.maxHp) {
-      this.currentHp = this.maxHp;
+    this.currentHp.next(this.currentHp.getValue() + amount);
+    if (this.currentHp.getValue() > this.maxHp) {
+      this.currentHp.next(this.maxHp);
     }
   }
 
   hurt(amount: number) {
-    this.currentHp -= amount;
-    if (this.currentHp < 0) {
-      this.currentHp = 0;
+    this.currentHp.next(this.currentHp.getValue() - amount);
+    if (this.currentHp.getValue() < 0) {
+      this.currentHp.next(0);
     }
   }
 
@@ -250,34 +250,28 @@ export class Character {
         this.luck.next(luck);
         break;
       case CharacterStatId.ability:
-        const ability = this.luck.getValue();
+        const ability = this.ability.getValue();
         ability.modifier = value;
-        this.luck.next(ability);
+        this.ability.next(ability);
         break;
       case CharacterStatId.dexterity:
-        const dexterity = this.luck.getValue();
+        const dexterity = this.dexterity.getValue();
         dexterity.modifier = value;
-        this.luck.next(dexterity);
+        this.dexterity.next(dexterity);
         break;
       case CharacterStatId.toughness:
-        const toughness = this.luck.getValue();
+        const toughness = this.toughness.getValue();
         toughness.modifier = value;
-        this.luck.next(toughness);
+        this.toughness.next(toughness);
         break;
       case CharacterStatId.armor:
-        const armor = this.luck.getValue();
-        armor.modifier = value;
-        this.luck.next(armor);
+        this.armor.modifier = value;
         break;
       case CharacterStatId.damage:
-        const damage = this.luck.getValue();
-        damage.modifier = value;
-        this.luck.next(damage);
+        this.damage.modifier = value;
         break;
       case CharacterStatId.critical:
-        const critical = this.luck.getValue();
-        critical.modifier = value;
-        this.luck.next(critical);
+        this.critical.modifier = value;
         break;
     }
   }

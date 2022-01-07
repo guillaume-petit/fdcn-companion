@@ -2,15 +2,15 @@ import {FightState} from "./fight-state";
 
 export interface FightRules {
 
-  start(fightState: FightState): boolean;
+  start(fightState: FightState): void;
 
   end(fightState: FightState): void;
 
-  next(fightState: FightState, attack: number, dodge?: number): boolean;
+  next(fightState: FightState, attack: number, dodge?: number): void;
 
-  enemyAttack(fightState: FightState, dodge: number, damage: number, steps: any[]): boolean;
+  enemyAttack(fightState: FightState, dodge: number, damage: number, steps: any[]): void;
 
-  billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]): boolean;
+  billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number, steps: any[]): void;
 
   tryToFlee(fightState: FightState, luckTest?: number): boolean;
 

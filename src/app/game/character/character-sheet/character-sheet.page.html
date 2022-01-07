@@ -44,14 +44,14 @@
           </ion-card-header>
           <ion-card-content class="ion-text-center">
             <div class="stat-control">
-              <ion-button color="primary" fill="clear" [disabled]="billy.currentHp === billy.maxHp" (click)="onHeal()">
+              <ion-button color="primary" fill="clear" [disabled]="(billy.currentHp | async) === billy.maxHp" (click)="onHeal()">
                 <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
               </ion-button>
-              <ion-button color="primary" fill="clear" [disabled]="billy.currentHp === 0" (click)="onHurt()">
+              <ion-button color="primary" fill="clear" [disabled]="(billy.currentHp | async) === 0" (click)="onHurt()">
                 <ion-icon name="remove-circle-outline" slot="icon-only"></ion-icon>
               </ion-button>
             </div>
-            <ion-text color="secondary" class="main-stat-value">{{ billy.currentHp }} / {{ billy.maxHp }}</ion-text>
+            <ion-text color="secondary" class="main-stat-value">{{ (billy.currentHp | async) }} / {{ billy.maxHp }}</ion-text>
           </ion-card-content>
         </ion-card>
       </ion-col>

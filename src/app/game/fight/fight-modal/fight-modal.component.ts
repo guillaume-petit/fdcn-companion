@@ -72,13 +72,13 @@ export class FightModalComponent implements OnInit {
         if (this.billy.trait.getValue() === 'Débrouillard' && this.dodgeDiceValue > 1) {
           this.fightStatus = 'pending_reroll';
         } else {
-          const continueFighting = this.enemy.fightRules.next(this.fightState, this.attackDiceValue, this.dodgeDiceValue);
-          if (this.billy.currentHp === 0 &&
+          this.enemy.fightRules.next(this.fightState, this.attackDiceValue, this.dodgeDiceValue);
+          if (this.billy.currentHp.getValue() === 0 &&
             this.billy.trait.getValue() === 'Prudent' &&
             this.billy.currentLuck > this.fightState.brinkOfDeath) {
             this.fightStatus = 'brink_of_death';
           } else {
-            this.fightStatus = continueFighting ? 'pending_attack' : 'ended';
+            this.fightStatus = this.fightState.fightEnded ? 'ended' : 'pending_attack';
           }
         }
       });
@@ -91,7 +91,7 @@ export class FightModalComponent implements OnInit {
       this.attackDiceValue = await this.diceHelper.roll(this.attackDice);
     }
     this.enemy.fightRules.next(this.fightState, this.attackDiceValue, this.dodgeDiceValue);
-    this.fightStatus = this.billy.currentHp === 0 || this.enemy.hp === 0 ? 'ended' : 'pending_attack';
+    this.fightStatus = this.billy.currentHp.getValue() === 0 || this.enemy.isDefeated ? 'ended' : 'pending_attack';
   }
 
   flee() {
@@ -129,12 +129,12 @@ export class FightModalComponent implements OnInit {
     this.luckDiceValue = null;
     if (this.billy.currentLuck > 5) {
       this.enemy.fightRules.tryToDoubleDamage(this.fightState);
-      this.fightStatus = this.enemy.hp === 0 ? 'ended' : 'pending_attack';
+      this.fightStatus = this.enemy.isDefeated ? 'ended' : 'pending_attack';
     } else {
       setTimeout(async () => {
         this.luckDiceValue = await this.diceHelper.roll(this.doubleDamageDice);
         this.doubleDamageSuccess = this.enemy.fightRules.tryToDoubleDamage(this.fightState, this.luckDiceValue);
-        this.fightStatus = this.enemy.hp === 0 ? 'ended' : 'pending_attack';
+        this.fightStatus = this.enemy.isDefeated ? 'ended' : 'pending_attack';
       }, 200);
     }
   }
@@ -147,14 +147,15 @@ export class FightModalComponent implements OnInit {
   onSelectEnemy(enemy: EnemyModel) {
     this.enemy = new Enemy(enemy);
     this.fightState = new FightState(this.billy, this.enemy);
-    if (!this.enemy.fightRules.start(this.fightState)) {
+    this.enemy.fightRules.start(this.fightState);
+    if (this.fightState.fightEnded) {
       this.fightStatus = 'ended';
     }
   }
 
   get canFlee() {
     return this.billy.trait.getValue() === 'Prudent' &&
-      this.billy.currentLuck >= this.fightState.currentSituation?.fleeCost &&
+      this.billy.currentLuck >= this.fightState.currentSituation.getValue().fleeCost &&
       this.fightState.fightTurns.length === 1 &&
       this.fightStatus === 'preparing';
   }
@@ -196,5 +197,15 @@ export class FightModalComponent implements OnInit {
 
   get isDoubleDamageDiceDisplayed() {
     return this.fightStatus === 'testing_double_damage' || this.doubleDamageSuccess !== null;
+  }
+
+  displayModifierValue(modifier: number) {
+    if (modifier < 0) {
+      return `(${modifier})`;
+    }
+    if (modifier === 0) {
+      return '';
+    }
+    return `(+${modifier})`;
   }
 }
