@@ -10,14 +10,14 @@ export class BasicFightRules implements FightRules {
       const modifiers = fightState.enemy.statModifier.call(this, fightState.billy);
       for (const modifier of modifiers) {
         fightState.billy.modifyStat(modifier.statId, modifier.value);
-        fightState.steps.push(`Vous obtenez ${modifier.value} de ${modifier.statId} durant ce combat.`);
+        fightState.log.push(`Vous obtenez ${modifier.value} de ${modifier.statId} durant ce combat.`);
       }
     }
     if (fightState.enemy.turnLimit) {
       fightState.turnLimit = fightState.enemy.turnLimit(fightState.billy);
     }
     if (fightState.turnLimit !== -1) {
-      fightState.steps.push(`Nombre de tours restants: ${fightState.turnLimit}`);
+      fightState.log.push(`Nombre de tours restants: ${fightState.turnLimit}`);
     }
 
     fightState.fightTurns.push({
@@ -27,18 +27,18 @@ export class BasicFightRules implements FightRules {
 
     fightState.billy.currentHp.subscribe(hp => {
       if (hp === 0) {
-        fightState.steps.push('Vous avez été vaincu !');
+        fightState.log.push('Vous avez été vaincu !');
         fightState.fightEnded = true;
       }
     });
 
     fightState.currentSituation.subscribe(currentSituation => {
       if (currentSituation.abilityOffset < -7) {
-        fightState.steps.push('Votre adversaire vous domine totalement. Vous perdez automatiquement le combat.');
+        fightState.log.push('Votre adversaire vous domine totalement. Vous perdez automatiquement le combat.');
         fightState.fightEnded = true;
       }
       if (currentSituation.abilityOffset > 7) {
-        fightState.steps.push('Vous dominez totalement votre adversaire. Vous remportez automatiquement le combat.');
+        fightState.log.push('Vous dominez totalement votre adversaire. Vous remportez automatiquement le combat.');
         fightState.fightEnded = true;
       }
     });
@@ -46,19 +46,19 @@ export class BasicFightRules implements FightRules {
 
   billyAttack(fightState: FightState, attack: number, critical: boolean, damage: number) {
     if (fightState.enemy.dodge(attack, fightState)) {
-      fightState.steps.push('L\'adversaire esquive votre coup!');
+      fightState.log.push('L\'adversaire esquive votre coup!');
     }
 
     const billyDamage = this.getBillyDamage(critical, damage, fightState);
-    fightState.steps.push(`Vous infligez ${billyDamage} de dégats ${critical ? 'critiques ' : ''} à votre adversaire.`);
+    fightState.log.push(`Vous infligez ${billyDamage} de dégats ${critical ? 'critiques ' : ''} à votre adversaire.`);
     fightState.enemy.hurt(billyDamage);
 
     if (fightState.enemy.isDefeated) {
-      fightState.steps.push(`Vous avez vaincu votre adversaire !`);
+      fightState.log.push(`Vous avez vaincu votre adversaire !`);
       fightState.fightEnded = true;
       if (fightState.billy.items.find(value => value.ref === ITEM.petitMedaillon)) {
         fightState.billy.heal(2);
-        fightState.steps.push(`Votre ${ITEM.petitMedaillon} vous restaure 2 POINTS DE VIE`);
+        fightState.log.push(`Votre ${ITEM.petitMedaillon} vous restaure 2 POINTS DE VIE`);
       }
     }
   }
@@ -78,11 +78,11 @@ export class BasicFightRules implements FightRules {
 
   enemyAttack(fightState: FightState, dodge: number, damage: number): number {
     if (dodge && dodge <= fightState.billy.dexterity.getValue().combatValue) {
-      fightState.steps.push(`Vous esquivez l'attaque de votre adversaire.`);
+      fightState.log.push(`Vous esquivez l'attaque de votre adversaire.`);
       return 0;
     } else {
       let enemyDamage = this.getEnemyDamage(fightState, damage);
-      fightState.steps.push(`Votre adversaire vous inflige ${enemyDamage}  de dégats.`);
+      fightState.log.push(`Votre adversaire vous inflige ${enemyDamage}  de dégats.`);
       fightState.billy.hurt(enemyDamage);
       return enemyDamage;
     }
@@ -100,11 +100,11 @@ export class BasicFightRules implements FightRules {
   }
 
   next(fightState: FightState, attack: number, dodge?: number) {
-    fightState.steps = [];
+    fightState.log = [];
     if (dodge === 1) {
       attack = 6;
     }
-    const situationTableDamages = fightState.currentSituation.getValue().damages.find(damage => damage.dice === attack);
+    const situationTableDamages = fightState.getSituationDamages(attack);
 
     if (!fightState.enemy.hasInitiative) {
       this.billyAttack(fightState, attack, dodge === 1, situationTableDamages.billyDamage);
@@ -131,10 +131,10 @@ export class BasicFightRules implements FightRules {
   endTurn(fightState: FightState) {
     if (fightState.turnLimit !== -1) {
       if (fightState.fightTurns.length === fightState.turnLimit) {
-        fightState.steps.push(`Vous n'avez pas réussi à vaincre votre adversaire dans le temps imparti!`);
+        fightState.log.push(`Vous n'avez pas réussi à vaincre votre adversaire dans le temps imparti!`);
         fightState.fightEnded = true;
       } else {
-        fightState.steps.push(`Nombre de tours restants: ${fightState.turnLimit - fightState.fightTurns.length}`);
+        fightState.log.push(`Nombre de tours restants: ${fightState.turnLimit - fightState.fightTurns.length}`);
       }
     }
   }
@@ -143,18 +143,17 @@ export class BasicFightRules implements FightRules {
     const success = fightState.billy.currentLuck > 5 || luckTest <= fightState.billy.currentLuck;
     fightState.billy.spendLuck(1);
     const previousDamage = fightState.fightTurns[fightState.fightTurns.length - 2].enemyHp - fightState.fightTurns[fightState.fightTurns.length - 1].enemyHp;
-    const steps = fightState.steps;
     if (success) {
       fightState.enemy.hurt(previousDamage);
       fightState.fightTurns[fightState.fightTurns.length - 1].enemyHp = fightState.enemy.hp.getValue();
-      steps.push(`Vous infligez ${previousDamage} de dégâts chanceux supplémentaires à votre adversaire !`);
+      fightState.log.push(`Vous infligez ${previousDamage} de dégâts chanceux supplémentaires à votre adversaire !`);
       if (fightState.enemy.isDefeated) {
-        steps.push(`Vous avez vaincu votre adversaire !`);
+        fightState.log.push(`Vous avez vaincu votre adversaire !`);
       }
     } else {
       fightState.enemy.heal(previousDamage);
       fightState.fightTurns[fightState.fightTurns.length - 1].enemyHp = fightState.enemy.hp.getValue();
-      steps.push(`Vous avez complètement raté votre attaque !`);
+      fightState.log.push(`Vous avez complètement raté votre attaque !`);
     }
     return success;
   }
@@ -162,7 +161,7 @@ export class BasicFightRules implements FightRules {
   tryToFlee(fightState: FightState, luckTest?: number): boolean {
     const success = fightState.billy.currentLuck > 5 || luckTest <= fightState.billy.currentLuck;
     fightState.billy.spendLuck(fightState.currentSituation.getValue().fleeCost);
-    fightState.steps.push(success ? 'Vous réussissez à fuir le combat !'
+    fightState.log.push(success ? 'Vous réussissez à fuir le combat !'
       : 'Vous ne parvenez pas à fuir le combat.');
     return success;
   }
@@ -170,15 +169,14 @@ export class BasicFightRules implements FightRules {
   tryToSurvive(fightState: FightState, luckTest?: number): boolean {
     const success = fightState.billy.currentLuck > 5 || luckTest <= fightState.billy.currentLuck;
     fightState.billy.spendLuck(++fightState.brinkOfDeath);
-    const steps = fightState.steps;
     if (success) {
       const hpRestored = fightState.fightTurns[fightState.fightTurns.length - 2].billyHp;
       fightState.fightTurns[fightState.fightTurns.length - 1].billyHp = hpRestored;
       fightState.billy.heal(hpRestored);
-      steps[steps.length - 1] = 'Vous réussissez à survivre miraculeusement et reprenez le combat !';
+      fightState.log[fightState.log.length - 1] = 'Vous réussissez à survivre miraculeusement et reprenez le combat !';
       fightState.fightEnded = false;
     } else {
-      steps[steps.length - 1] = 'Vous ne survivez pas à cette attaque. Ce sont des choses qui arrivent.';
+      fightState.log[fightState.log.length - 1] = 'Vous ne survivez pas à cette attaque. Ce sont des choses qui arrivent.';
     }
     return success;
   }

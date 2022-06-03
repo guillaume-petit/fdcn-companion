@@ -12,6 +12,7 @@ import {SelectEquipmentModalComponent} from "./select-equipment-modal/select-equ
 import {SelectEquipmentItemComponent} from "./select-equipment-modal/select-equipment-item/select-equipment-item.component";
 import {SecondStatCardComponent} from "./second-stat-card/second-stat-card.component";
 import {FightModalComponent} from "../../fight/fight-modal/fight-modal.component";
+import {InventoryModalComponent} from "../../inventory/inventory-modal/inventory-modal.component";
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import {FightModalComponent} from "../../fight/fight-modal/fight-modal.component
     SelectEquipmentModalComponent,
     SelectEquipmentItemComponent,
     SecondStatCardComponent,
-    FightModalComponent
+    FightModalComponent,
+    InventoryModalComponent
   ]
 })
 export class CharacterSheetPageModule {}

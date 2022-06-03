@@ -1,0 +1,55 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Inventaire</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()" color="primary">
+                <ion-icon name="close" slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ion-card class="ion-no-margin items-card">
+        <ion-card-content>
+            <ion-list>
+                <ion-item>
+                    <ion-button
+                            id="add-item-button"
+                            size="small"
+                            fill="clear"
+                    >
+                        <ion-icon
+                                name="add"
+                                slot="icon-only"
+                        ></ion-icon>
+                    </ion-button>
+                </ion-item>
+                <ion-item-sliding
+                    #itemSliding
+                    *ngFor="let item of billy.items; index as i"
+                    (click)="toggleItemSliding(itemSliding)"
+                >
+                    <ion-item>
+                        <ion-label class="ion-text-capitalize">{{ item.ref }}</ion-label>
+                    </ion-item>
+                    <ion-item-options side="end">
+                        <ion-item-option (click)="onDeleteItem(i)" color="danger">
+                            <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                        </ion-item-option>
+                    </ion-item-options>
+                </ion-item-sliding>
+            </ion-list>
+        </ion-card-content>
+    </ion-card>
+</ion-content>
+<ion-popover trigger="add-item-button" dismissOnSelect="true">
+    <ng-template>
+        <ion-content>
+            <ion-list>
+                <ion-item *ngFor="let item of availableItems" (click)="onAddItem(item)">
+                    <ion-label class="ion-text-capitalize">{{ item.paragraph }} - {{ item.ref }}</ion-label>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </ng-template>
+</ion-popover>

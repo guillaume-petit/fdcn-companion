@@ -1,13 +1,19 @@
 <ion-header translucent>
   <ion-toolbar>
     <ion-title>Feuille de combat</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="!enemy" (click)="modalCtrl.dismiss()" color="primary">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 <ion-content>
   <ion-grid *ngIf="enemy; else enemySelection">
     <ion-row class="header-row">
-      <ion-col class="ion-text-center">
-        <ion-label class="ion-text-uppercase">{{ enemy?.name }}</ion-label>
+      <ion-col class="ion-text-center ion-text-uppercase">
+        <ion-label color="primary">{{ enemy?.name }}</ion-label>
+        <p>Situation: {{ (fightState.currentSituation | async).name }} ({{ (fightState.currentSituation | async).abilityOffset }})</p>
       </ion-col>
     </ion-row>
     <ion-row>
@@ -37,8 +43,7 @@
         <ion-label>Niveau de chance actuel: {{ billy.currentLuck }} / {{ billy.maxLuck }}</ion-label>
       </ion-col>
       <ion-col class="ion-text-center action-col" *ngIf="canAttack">
-        <ion-button (click)="attack()" [disabled]="fightStatus === 'attacking'">Attaquer</ion-button>
-        <ion-label>{{ (fightState.currentSituation | async).name }} ({{ (fightState.currentSituation | async).abilityOffset }})</ion-label>
+        <ion-button (click)="attack()" [disabled]="fightStatus === 'attacking' || fightStatus === 'pending_reroll'">Attaquer</ion-button>
       </ion-col>
       <ion-col class="ion-text-center action-col" *ngIf="fightStatus === 'brink_of_death'">
         <ion-button (click)="onFinishFight()">Abandonner</ion-button>
@@ -121,13 +126,14 @@
               <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </div>
+          <ion-label *ngIf="attackDiceValue">{{ fightState.getSituationDamages(attackDiceValue)?.billyDamage }} -- {{ fightState.getSituationDamages(attackDiceValue)?.enemyDamage }}</ion-label>
         </div>
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col [ngClass]="isStepsDisplayed ? '' : 'ion-hide'">
-        <div *ngFor="let step of fightState.steps" class="ion-text-center">
-          <p>{{ step }}</p>
+      <ion-col [ngClass]="isLogDisplayed ? '' : 'ion-hide'">
+        <div *ngFor="let logEntry of fightState.log" class="ion-text-center">
+          <p>{{ logEntry }}</p>
         </div>
       </ion-col>
     </ion-row>

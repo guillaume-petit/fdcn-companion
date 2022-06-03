@@ -100,20 +100,13 @@ ion-card-content .stat-control {
   }
 }
 
-.items-card {
-  .edit-button {
-    font-size: 14px;
-  }
-
-  ion-list {
-    ion-item:last-child {
+ion-footer {
+  ion-toolbar {
+    --min-height: 70px;
+    .footer-toolbar {
       display: grid;
-      justify-content: center;
-      grid-template-columns: 1fr;
-
-      ion-button {
-        width: 100%;
-      }
+      grid-template-columns: 1fr 2fr 1fr;
+      align-items: center;
     }
   }
 }

@@ -2,7 +2,7 @@ import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core
 import {ActivatedRoute, NavigationStart, Router} from '@angular/router';
 import {Character} from '../character.model';
 import {CharacterService} from '../character.service';
-import {ModalController} from '@ionic/angular';
+import {IonItemSliding, ModalController} from '@ionic/angular';
 import {SelectEquipmentModalComponent} from './select-equipment-modal/select-equipment-modal.component';
 import {CharacterStat} from '../character-stat.model';
 import {BehaviorSubject} from 'rxjs';
@@ -10,6 +10,7 @@ import {FightModalComponent} from '../../fight/fight-modal/fight-modal.component
 import {DiceHelper} from '../../helpers/dice.helper';
 import {AnimationHelper} from '../../helpers/animation.helper';
 import {InventoryItem, ITEMS} from "../../inventory/inventory-item.model";
+import {InventoryModalComponent} from "../../inventory/inventory-modal/inventory-modal.component";
 
 @Component({
   selector: 'app-character-sheet',
@@ -175,14 +176,6 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
     this.billy.wealth--;
   }
 
-  onAddItem(item: InventoryItem) {
-    this.billy.items.push(item);
-  }
-
-  onDeleteItem(i: number) {
-    this.billy.items.splice(i, 1);
-  }
-
   async onFight() {
     const modal = await this.modalCtrl.create({
       component: FightModalComponent,
@@ -193,7 +186,13 @@ export class CharacterSheetPage implements OnInit, OnDestroy {
     return modal.present();
   }
 
-  get availableItems() {
-    return ITEMS.filter(item => !this.billy.items.find(i => item.paragraph === i.paragraph));
+  async onOpenInventory() {
+    const modal = await this.modalCtrl.create({
+      component: InventoryModalComponent,
+      componentProps: {
+        billy: this.billy
+      }
+    });
+    return modal.present();
   }
 }

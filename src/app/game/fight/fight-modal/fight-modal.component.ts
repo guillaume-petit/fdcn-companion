@@ -48,7 +48,7 @@ export class FightModalComponent implements OnInit {
 
   constructor(
     private diceHelper: DiceHelper,
-    private modalCtrl: ModalController
+    public modalCtrl: ModalController
   ) { }
 
   ngOnInit() {}
@@ -191,7 +191,7 @@ export class FightModalComponent implements OnInit {
       this.fleeSuccess === null;
   }
 
-  get isStepsDisplayed() {
+  get isLogDisplayed() {
     return ['preparing', 'pending_attack', 'ended', 'brink_of_death'].includes(this.fightStatus);
   }
 

@@ -12,7 +12,7 @@ export class FightState {
   turnLimit = -1;
   abilityOffset = new BehaviorSubject<number>(0);
   fightEnded = false;
-  steps: string[] = [];
+  log: string[] = [];
 
   constructor(billy: Character, enemy: Enemy) {
     this.billy = billy;
@@ -41,5 +41,9 @@ export class FightState {
         this.currentSituation.next(SITUATION_TABLE.find(s => s.abilityOffset === abilityOffset));
       }
     });
+  }
+
+  getSituationDamages(attackDiceValue: number) {
+    return this.currentSituation.getValue().damages.find(damage => damage.dice === attackDiceValue);
   }
 }

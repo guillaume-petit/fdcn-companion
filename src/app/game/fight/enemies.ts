@@ -108,14 +108,14 @@ export const ENEMIES: Array<EnemyModel> = [
           let dexterityRoll = Math.floor(Math.random() * 6 + 1);
           if (fightState.billy.dexterity.getValue().combatValue > 1) {
             if (dexterityRoll <= fightState.billy.dexterity.getValue().combatValue) {
-              fightState.steps.push(`Massacre invoque un trait de flamme mais vous esquivez son attaque ! (Jet d\'esquive réussi : ${dexterityRoll})`);
+              fightState.log.push(`Massacre invoque un trait de flamme mais vous esquivez son attaque ! (Jet d\'esquive réussi : ${dexterityRoll})`);
             } else {
               fightState.billy.hurt(3);
-              fightState.steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts ! (Jet d\'esquive raté : ${dexterityRoll})`);
+              fightState.log.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts ! (Jet d\'esquive raté : ${dexterityRoll})`);
             }
           } else {
             fightState.billy.hurt(3);
-            fightState.steps.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts.`);
+            fightState.log.push(`Massacre invoque un trait de flamme et vous inflige 3 de dégâts.`);
           }
         }
         super.endTurn(fightState);
@@ -261,7 +261,7 @@ export const ENEMIES: Array<EnemyModel> = [
     fightRules: new class extends BasicFightRules {
       getBillyDamage(critical: boolean, damage: number, fightState: FightState): number {
         if (critical) {
-          fightState.steps.push('La trollesse esquive votre coup critique grâce à ses multiples bras.');
+          fightState.log.push('La trollesse esquive votre coup critique grâce à ses multiples bras.');
           return 0;
         }
         return super.getBillyDamage(critical, damage, fightState);
@@ -288,7 +288,7 @@ export const ENEMIES: Array<EnemyModel> = [
           fightState.enemy.additionalProperties.entangled = false;
           fightState.enemy.bonusPB.next(4);
           fightState.billy.modifyStat(CharacterStatId.dexterity, 0);
-          fightState.steps.push('Vous vous libérez des toiles d\'araignées qui gênaient vos mouvements.');
+          fightState.log.push('Vous vous libérez des toiles d\'araignées qui gênaient vos mouvements.');
         }
         super.billyAttack(fightState, attack, critical, damage);
       }
@@ -297,7 +297,7 @@ export const ENEMIES: Array<EnemyModel> = [
         let billyDamage = super.getBillyDamage(critical, damage, fightState);
         if (billyDamage >= 5) {
           billyDamage *= 2;
-          fightState.steps.push('Votre attaque puissante pénètre la carapace chitineuse de Mortelle.');
+          fightState.log.push('Votre attaque puissante pénètre la carapace chitineuse de Mortelle.');
         }
         return billyDamage;
       }
@@ -310,7 +310,7 @@ export const ENEMIES: Array<EnemyModel> = [
       endTurn(fightState: FightState) {
         if (fightState.enemy.additionalProperties.mortelleAttack > 0) {
           fightState.billy.hurt(fightState.enemy.additionalProperties.mortelleAttack);
-          fightState.steps.push(`L\'acide de Mortelle vous inflige ${fightState.enemy.additionalProperties.mortelleAttack} dégâts supplémentaires.`);
+          fightState.log.push(`L\'acide de Mortelle vous inflige ${fightState.enemy.additionalProperties.mortelleAttack} dégâts supplémentaires.`);
         }
         super.endTurn(fightState);
       }
@@ -339,7 +339,7 @@ export const ENEMIES: Array<EnemyModel> = [
     fightRules: new class extends BasicFightRules {
       endTurn(fightState: FightState) {
         fightState.billy.hurt(1);
-        fightState.steps.push('Les spores acides vous font perdre 1 POINT DE VIE.');
+        fightState.log.push('Les spores acides vous font perdre 1 POINT DE VIE.');
         super.endTurn(fightState);
       }
     }
@@ -359,7 +359,7 @@ export const ENEMIES: Array<EnemyModel> = [
     fightRules: new class extends BasicFightRules {
       endTurn(fightState: FightState) {
         if (fightState.enemy.ability.getValue() > 0) {
-          fightState.steps.push('Votre adversaire perd 1 POINT D\'HABILETÉ.');
+          fightState.log.push('Votre adversaire perd 1 POINT D\'HABILETÉ.');
           fightState.enemy.ability.next(fightState.enemy.ability.getValue() - 1);
         }
         super.endTurn(fightState);

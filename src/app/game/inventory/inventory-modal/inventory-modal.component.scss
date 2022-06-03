@@ -1,0 +1,16 @@
+.items-card {
+  height: 100%;
+
+  ion-list {
+    ion-item:first-child {
+      display: grid;
+      justify-content: center;
+      grid-template-columns: 1fr;
+
+      ion-button {
+        width: 100%;
+      }
+    }
+  }
+}
+
